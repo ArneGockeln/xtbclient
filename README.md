@@ -1,7 +1,9 @@
 # xtbclient
-C++ Client for xtb trading api
+C++ Client for the xtb trading api.
 
-This library provides all required classes and methods to connect and talk with the xtb trading json api.
+This library provides all required classes and methods to connect and talk with the xtb trading json socket api.
+
+**The library is in development and not ready for production use!!**
 
 ## Broker API Version
 Current Version 2.4.15 is supported. http://developers.xstore.pro/documentation/2.4.15
