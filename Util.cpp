@@ -17,7 +17,7 @@ namespace xtbclient {
    */
   bool Util::hasDocumentParseError(Document *t_document) {
     if(t_document->HasParseError()){
-      fprintf(stderr, "DocumentParseError: %s\n", GetParseError_En(t_document->GetParseError()));
+      fprintf(stderr, "JSONParseError: %s\n", GetParseError_En(t_document->GetParseError()));
       return true;
     }
 
@@ -31,10 +31,10 @@ namespace xtbclient {
    */
   void Util::handleJsonResponseError(std::string* jsonData) {
     Document document;
-    document.Parse(jsonData->c_str());
+    document.Parse<rapidjson::kParseStopWhenDoneFlag>(jsonData->c_str());
 
     if(document.HasParseError()){
-      fprintf(stderr, "DocumentParseError: %s\n", GetParseError_En(document.GetParseError()));
+      fprintf(stderr, "JSONParseError: %s\n", GetParseError_En(document.GetParseError()));
       return;
     }
 
@@ -80,5 +80,39 @@ namespace xtbclient {
    std::string Util::trim_copy(std::string s) {
     rtrim(s);
     return s;
+  }
+
+  /*!
+   * trim from left
+   *
+   * @param char* s
+   * @return char*
+   */
+  char *Util::ltrim(char *s) {
+    while(isspace(*s)) s++;
+    return s;
+  }
+
+  /*!
+   * trim from right
+   *
+   * @param char* s
+   * @return char*
+   */
+  char *Util::rtrim(char *s) {
+    char* back = s + strlen(s);
+    while(isspace(*--back));
+    *(back+1) = '\0';
+    return s;
+  }
+
+  /*!
+   * trim left and right
+   *
+   * @param char* s
+   * @return char*
+   */
+  char *Util::trim(char *s) {
+    return rtrim(ltrim(s));
   }
 }

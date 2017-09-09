@@ -8,6 +8,8 @@
 #include <string>
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
+#include "enums/Period.h"
+#include "record/ChartLastInfoRecord.h"
 
 namespace xtbclient {
   class RequestFactory {
@@ -21,6 +23,8 @@ namespace xtbclient {
     static std::string getLogin(const char*, const char*, const char*, const char*);
     static std::string getAllSymbols();
     static std::string getCalendar();
+    static std::string getCurrentUserData();
+    static std::string getChartLastRequest(ChartLastInfoRecord &t_infoRecord);
 
     // subscription commands
     static std::string subscribeBalance(std::string *t_streamSessionId);

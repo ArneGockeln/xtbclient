@@ -15,11 +15,10 @@ namespace xtbclient {
 
   class ResponseFactory {
   private:
-    static Document getDocument(Client* t_client);
-    static void printJsonResponse(Client* t_client);
+    static Document getDocumentFromJson(std::string t_jsonString);
 
   public:
-    static std::string getStreamSessionId(Client *t_client);
+    static std::string getStreamSessionId(std::string t_jsonString);
   };
 }
 

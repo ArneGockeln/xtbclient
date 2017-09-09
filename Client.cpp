@@ -4,13 +4,13 @@
 
 #include "Client.h"
 #include "RequestFactory.h"
+#include "ResponseFactory.h"
 #include <iostream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
 #include <netdb.h>
-#include <vector>
 
 namespace xtbclient {
   Client::Client(ClientType t_clientType) {
@@ -26,15 +26,16 @@ namespace xtbclient {
   SSL_CTX *Client::createContext() {
     SSL_CTX *ctx;
 
-    OpenSSL_add_ssl_algorithms();
-    SSL_load_error_strings();
-
     ctx = SSL_CTX_new( SSLv23_client_method() );
-    if(ctx == NULL){
+    if(ctx == nullptr){
       perror("Unable to create SSL context.");
       ERR_print_errors_fp(stderr);
       exit(EXIT_FAILURE);
     }
+
+    // config ctx
+    /*const long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION;
+    SSL_CTX_set_options(ctx, flags);*/
 
     printf("SSL context created.\n");
 
@@ -46,7 +47,7 @@ namespace xtbclient {
    */
   void Client::initClient() {
     int server_socket;
-    int server_port;
+    int server_port = 0;
     std::string server_host;
     int y = 1;
 
@@ -108,14 +109,25 @@ namespace xtbclient {
 
     printf("Connected.\n");
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    SSL_library_init();
-#else
-    OPENSSL_init_ssl(0, NULL);
-#endif
+    // openssl init
+    OpenSSL_add_all_algorithms();
+    ERR_load_BIO_strings();
+    ERR_load_crypto_strings();
+    SSL_load_error_strings();
 
+    if(SSL_library_init() < 0){
+      perror("Could not initialize the OpenSSL library!");
+      exit(EXIT_FAILURE);
+    }
+
+    // create context
     SSL_CTX* ssl_ctx = createContext();
     SSL* ssl = SSL_new(ssl_ctx);
+    if(ssl == nullptr){
+      fprintf(stderr, "SSL_new failed.\n");
+      exit(EXIT_FAILURE);
+    }
+
     SSL_set_fd(ssl, server_socket);
     if(SSL_connect(ssl) == -1){
       ERR_print_errors_fp(stderr);
@@ -125,87 +137,192 @@ namespace xtbclient {
       exit(EXIT_FAILURE);
     }
 
-    // request
-//    callback(ssl);
     setSSL(ssl);
   }
 
   /*!
-   * Write to ssl fd
+   * Mutex write to ssl
    *
-   * @param std::string data
+   * @param SSL* t_ssl
+   * @param const char* t_data
+   * @param const int t_data_len
    */
-  void Client::sendRequest(std::string data) {
+  void Client::ssl_write(SSL* t_ssl, const char* t_data, const int t_data_len) {
+    if(t_ssl == nullptr){
+      fprintf(stderr, "SSL is nullptr\n");
+      exit(EXIT_FAILURE);
+    }
 
-    SSL *ssl = getSSL();
+    std::unique_lock<std::mutex> unique_lock(m_ssl_mutex);
+    int write_error = SSL_write(t_ssl, t_data, t_data_len);
+    unique_lock.unlock();
 
-    if(ssl != nullptr && data.length() > 0){
-      std::lock_guard<std::mutex> guard(m_ssl_mutex);
-      if(SSL_write(ssl, data.data(), data.length()) < 0){
+    switch(SSL_get_error(t_ssl, write_error)){
+      case SSL_ERROR_NONE:
+        if(t_data_len != write_error){
+          perror("ssl incomplete write.");
+          exit(EXIT_FAILURE);
+        }
+        break;
+      default:
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
-      }
     }
   }
 
   /*!
-   * Read from ssl fd
+   * Mutex read from ssl
    *
-   * @return std::string
+   * @param SSL* t_ssl
+   * @param void* t_buffer
+   * @param int t_buffer_size
+   * @return int read bytes
    */
-  std::string Client::getResponse() {
+  int Client::ssl_read(SSL *t_ssl, void* t_buffer, int t_buffer_size) {
+    if(t_ssl == nullptr){
+      fprintf(stderr, "SSL is nullptr\n");
+      exit(EXIT_FAILURE);
+    }
+
+    std::unique_lock<std::mutex> unique_lock(m_ssl_mutex);
+    int read_bytes = SSL_read(t_ssl, t_buffer, t_buffer_size);
+    unique_lock.unlock();
+
+    return read_bytes;
+  }
+
+  /*!
+   * Write to ssl fd and return response
+   *
+   * @param std::string json request
+   * @return std::string response
+   */
+  std::string Client::sendRequest(std::string t_json) {
 
     SSL *ssl = getSSL();
 
     std::string response;
 
-    if(ssl != nullptr){
-      int read_error, read_block = 0, read_block_on_write = 0;
-      const int bufferSize = 1024;
+    if(ssl != nullptr && t_json.length() > 0){
+      // mutex write to ssl
+      ssl_write(ssl, t_json.data(), static_cast<int>(t_json.length()));
 
-      std::vector<std::string> chunks;
-
-      do {
-
-        read_block = 0;
-        read_block_on_write = 0;
-
-        char responseBuffer[bufferSize];
-        read_error = SSL_read(ssl, responseBuffer, sizeof(responseBuffer) - 1);
-        switch(SSL_get_error(ssl, read_error)){
-          case SSL_ERROR_NONE:
-            chunks.push_back(static_cast<std::string>(responseBuffer));
-
-            break;
-          case SSL_ERROR_WANT_READ:
-            read_block = 1;
-            break;
-          case SSL_ERROR_WANT_WRITE:
-            read_block_on_write = 1;
-            break;
-          case SSL_ERROR_ZERO_RETURN:
-             read_block = 1;
-            break;
-          case SSL_ERROR_SYSCALL:
-            fprintf(stderr, "SSL Error: Premature close\n");
-             read_block = 1;
-            break;
-          default:
-            fprintf(stderr, "SSL read problem.\n");
-            read_block = 1;
-            break;
-        }
-      } while(SSL_pending(ssl) > 0 && !read_block);
-
-      // concatenate chunks
-      for(auto& chunk : chunks){
-        response.append(chunk);
-      }
-
-      Util::handleJsonResponseError(&response);
+      response = getResponse();
     }
 
+    // return response
     return response;
+  }
+
+  /*!
+   * Check if response has two \n\n at the end
+   * which marks the end of the response
+   *
+   * @param std::string t_response
+   * @return bool
+   */
+  bool Client::is_response_end(std::string t_buffer) {
+    if( !t_buffer.empty() ){
+      const char* c_response = t_buffer.c_str();
+      const int response_len = strlen(c_response);
+      const char nl1 = c_response[response_len - 1];
+      const char nl2 = c_response[response_len - 2];
+
+      if(nl1 == '\n' && nl2 == '\n'){
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /*!
+   * Clean up response string and check for json parser error
+   *
+   * @param std::string& t_response
+   */
+  void Client::cleanResponse(std::string &t_response) {
+    // check if empty string
+    if( !t_response.empty() ){
+      if( is_response_end( t_response ) ){
+        // remove the \n\n record terminator
+        Util::rtrim( t_response );
+        Util::rtrim( t_response );
+      }
+    }
+  }
+
+  /*!
+   * Read from ssl until \n\n record termination found
+   *
+   * @return std::string json response
+   */
+  std::string Client::getResponse() {
+    std::string response;
+
+    char buf[1024];
+    SSL* ssl = getSSL();
+    SSL_CTX_set_options(SSL_get_SSL_CTX(ssl), SSL_OP_NO_SSLv2);
+
+    if(ssl){
+      memset(buf, '\0', sizeof(buf));
+      int bytes;
+      // first read, if record block termination found, return response
+      bytes = SSL_read(ssl, buf, sizeof(buf));
+      response += buf;
+      if( is_response_end( response ) ){
+        // clean up response string
+        cleanResponse(response);
+        // return response
+        return response;
+      }
+
+      // no response end found, read on ..
+      bool bLooping = true;
+      while( bLooping ){
+
+        memset(buf, '\0', sizeof(buf));
+        bytes = SSL_read(ssl, buf, sizeof(buf));
+
+        switch(SSL_get_error(ssl, bytes)){
+          case SSL_ERROR_NONE:
+            response += buf;
+            if( is_response_end( response ) ){
+              bLooping = false;
+            }
+            break;
+        } // - switch end
+      } // - while end
+    } // - if ssl end
+
+    // clean up response string
+    cleanResponse(response);
+
+    // return response string
+    return response;
+  }
+
+  /*!
+   * Try to login and obtain a stream session id
+   *
+   * @param const char* t_username
+   * @param const char* t_password
+   * @return bool
+   */
+  bool Client::sendLogin(const char *t_username, const char *t_password) {
+    std::string login_response = sendRequest( RequestFactory::getLogin( t_username, t_password, nullptr, nullptr ) );
+    // get session id
+    std::string sessionId = ResponseFactory::getStreamSessionId( login_response );
+
+    if(!sessionId.empty()){
+      // set session id
+      setStreamSessionId( &sessionId );
+      return true;
+    }
+
+    fprintf(stderr, "could not obtain stream session id!\n");
+
+    return false;
   }
 
   /*!

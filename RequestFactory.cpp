@@ -55,6 +55,33 @@ namespace xtbclient {
   }
 
   /*!
+   * Get current user data request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getCurrentUserData() {
+    std::string cmd = "getCurrentUserData";
+    return noArgumentCommand(&cmd);
+  }
+
+  /**
+   * Get chart info, from start date to the current time
+   *
+   * @param ChartLastInfoRecord
+   * @return std::string
+   */
+  std::string RequestFactory::getChartLastRequest(ChartLastInfoRecord &t_infoRecord){
+    Document document;
+
+    SetValueByPointer(document, "/command", "getChartLastRequest");
+    SetValueByPointer(document, "/arguments/info/period", static_cast<int>(t_infoRecord.m_period));
+    SetValueByPointer(document, "/arguments/info/start", t_infoRecord.m_start);
+    SetValueByPointer(document, "/arguments/info/symbol", StringRef(t_infoRecord.m_symbol.data()));
+
+    return getStringify(&document);
+  }
+
+  /*!
    * Get request for balance subscription
    *
    * @param std::string* t_streamSessionId

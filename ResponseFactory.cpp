@@ -8,13 +8,14 @@ namespace xtbclient {
   /*!
    * Get stream session id
    *
-   * @param Client* t_client
+   * @param std::string t_jsonString
    * @return std::string
    */
-  std::string ResponseFactory::getStreamSessionId(Client *t_client) {
-    Document document = getDocument(t_client);
+  std::string ResponseFactory::getStreamSessionId(std::string t_jsonString) {
+    Document document = getDocumentFromJson(std::move(t_jsonString));
 
     std::string sessionId;
+
     if(document.HasParseError()){
       return sessionId;
     }
@@ -29,28 +30,18 @@ namespace xtbclient {
   }
 
   /*!
-   * Print json response for debugging
-   *
-   * @param Client* t_client
-   */
-  void ResponseFactory::printJsonResponse(Client* t_client){
-    if(t_client->getResponse().length() > 0){
-      printf("Debug: %s\n", t_client->getResponse().data());
-    }
-  }
-
-  /*!
    * Parse json to rapidjson document
    *
-   * @param Client* t_client
+   * @param std::string t_jsonString
    * @return rapidjson::Document
    */
-  Document ResponseFactory::getDocument(Client* t_client){
+  Document ResponseFactory::getDocumentFromJson(std::string t_jsonString){
+
     Document document;
-    document.Parse(t_client->getResponse().data());
+    document.Parse<rapidjson::kParseStopWhenDoneFlag>(t_jsonString.c_str());
 
     if(Util::hasDocumentParseError(&document)){
-      fprintf(stderr, "CorruptJsonString: %s\n", t_client->getResponse().data());
+      fprintf(stderr, "CorruptJsonString: %s\n", t_jsonString.c_str());
     }
 
     return document;

@@ -16,7 +16,7 @@ namespace xtbclient {
     static bool hasDocumentParseError(Document *t_document);
     static void handleJsonResponseError(std::string* jsonData);
     static void debug(std::string data){
-      printf("Debug: %s\n", data.data());
+      fprintf(stdout, "Debug: %s\n", data.data());
     }
     static void ltrim(std::string &s);
     static void rtrim(std::string &s);
@@ -24,6 +24,10 @@ namespace xtbclient {
     static std::string ltrim_copy(std::string s);
     static std::string rtrim_copy(std::string s);
     static std::string trim_copy(std::string s);
+
+    static char* ltrim(char *s);
+    static char* rtrim(char *s);
+    static char* trim(char *s);
   };
 }
 
