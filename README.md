@@ -15,4 +15,14 @@ I followed the style guide of [C++ Best Practice](https://github.com/lefticus/cp
 C++17, [OpenSSL](http://openssl.org/) and [RapidJson](http://rapidjson.org/) are required for building.
 
 # Examples
-TBA
+
+### Login
+```
+// set up client
+Client client(ClientType::DEMO);
+// try to login
+if( client.sendLogin("10091849", "super_awesome_password") ) {
+  // send request for user data
+  std::string userdata = client.sendRequest( RequestFactory::getCurrentUserData() );
+} // - if client.sendLogin end
+```

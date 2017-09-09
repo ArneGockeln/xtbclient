@@ -12,6 +12,8 @@
 #include <mutex>
 #include "StreamListener.h"
 #include "Util.h"
+#include <vector>
+#include <cstdint>
 
 namespace xtbclient {
   enum ClientType {
@@ -46,12 +48,17 @@ namespace xtbclient {
     void setSSL(SSL* t_ssl);
     void setClientType(ClientType t_clientType);
     void startFork(std::function<void(std::string)> t_callback);
+    void ssl_write(SSL* t_ssl, const char* t_data, const int t_data_len);
+    int ssl_read(SSL* t_ssl, void* t_buffer, int t_buffer_size);
+    bool is_response_end(std::string t_buffer);
+    void cleanResponse(std::string& t_response);
 
   public:
     Client(ClientType t_clientType);
     ~Client();
 
-    void sendRequest(std::string data);
+    bool sendLogin(const char* t_username, const char* t_password);
+    std::string sendRequest(std::string t_json);
     std::string getResponse();
 
     void setStreamListener(StreamListener* t_streamListener);
