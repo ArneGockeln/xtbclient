@@ -7,6 +7,8 @@
 
 #include <rapidjson/document.h>
 #include <string>
+#include <chrono>
+#include <date/date.h>
 
 using namespace rapidjson;
 
@@ -15,8 +17,12 @@ namespace xtbclient {
   public:
     static bool hasDocumentParseError(Document *t_document);
     static void handleJsonResponseError(std::string* jsonData);
+    static bool hasAPIResponseError(const std::string &jsonResponse);
     static void debug(std::string data){
       fprintf(stdout, "Debug: %s\n", data.data());
+    }
+    static void printError(const std::string& message) {
+      fprintf(stderr, "Error: %s\n", message.c_str());
     }
     static void ltrim(std::string &s);
     static void rtrim(std::string &s);
@@ -28,6 +34,8 @@ namespace xtbclient {
     static char* ltrim(char *s);
     static char* rtrim(char *s);
     static char* trim(char *s);
+
+    static long long int getUTCinMilliseconds(int day, unsigned int month, int year, int hour, int minute, int second);
   };
 }
 

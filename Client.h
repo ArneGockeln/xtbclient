@@ -12,6 +12,8 @@
 #include <mutex>
 #include "StreamListener.h"
 #include "Util.h"
+#include "endpoints/ChartLastRequest.h"
+#include "record/ChartLastInfoRecord.h"
 #include <vector>
 #include <cstdint>
 
@@ -60,6 +62,12 @@ namespace xtbclient {
     bool sendLogin(const char* t_username, const char* t_password);
     std::string sendRequest(std::string t_json);
     std::string getResponse();
+
+    /*!
+     * Requests
+     */
+    ChartLastRequest getChartLastRequest(ChartLastInfoRecord& t_record);
+
 
     void setStreamListener(StreamListener* t_streamListener);
     std::string* getStreamSessionId();

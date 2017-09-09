@@ -12,7 +12,7 @@
 namespace xtbclient {
   struct ChartLastInfoRecord {
     Period m_period;
-    uint64_t m_start;
+    long long m_start;
     std::string m_symbol;
   };
 }

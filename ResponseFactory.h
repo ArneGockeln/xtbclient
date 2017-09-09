@@ -8,6 +8,7 @@
 #include <string>
 #include "Client.h"
 #include <rapidjson/document.h>
+#include "endpoints/ChartLastRequest.h"
 
 namespace xtbclient {
 
@@ -16,9 +17,11 @@ namespace xtbclient {
   class ResponseFactory {
   private:
     static Document getDocumentFromJson(std::string t_jsonString);
+    static Value* getReturnData(std::string t_json);
 
   public:
     static std::string getStreamSessionId(std::string t_jsonString);
+    static ChartLastRequest getChartLastRequest(std::string t_json);
   };
 }
 

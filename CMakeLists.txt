@@ -6,5 +6,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/Users/arnegockeln/Sourcecode/cpp/incl
 
 set(SOURCE_FILES main.cpp Client.cpp Client.h StreamListener.cpp StreamListener.h RequestFactory.cpp RequestFactory.h ResponseFactory.cpp ResponseFactory.h Util.cpp Util.h)
 set(SOURCE_FILES ${SOURCE_FILES} enums/Period.h)
-set(SOURCE_FILES ${SOURCE_FILES} record/ChartLastInfoRecord.h main.cpp)
+set(SOURCE_FILES ${SOURCE_FILES} record/ChartLastInfoRecord.h record/RateInfoRecord.h main.cpp endpoints/ChartLastRequest.cpp endpoints/ChartLastRequest.h)
 add_executable(xtbclient ${SOURCE_FILES})

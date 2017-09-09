@@ -12,7 +12,10 @@ Current Version 2.4.15 is supported. http://developers.xstore.pro/documentation/
 I followed the style guide of [C++ Best Practice](https://github.com/lefticus/cppbestpractices) by lefticus. 
 
 ## Dependencies
-C++17, [OpenSSL](http://openssl.org/) and [RapidJson](http://rapidjson.org/) are required for building.
+- C++17 
+- [OpenSSL](http://openssl.org/)
+- [RapidJson](http://rapidjson.org/)
+- [date](https://github.com/HowardHinnant/date)
 
 # Examples
 

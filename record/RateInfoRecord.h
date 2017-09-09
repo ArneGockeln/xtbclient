@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct RateInfoRecord {
     double m_close;
     uint64_t m_ctm;

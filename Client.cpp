@@ -11,9 +11,38 @@
 #include <unistd.h>
 #include <thread>
 #include <netdb.h>
+#include <signal.h>
 
 namespace xtbclient {
+
+  /*!
+ * Signal Handler for zombie processes
+ */
+  typedef void (*sighandler_t)(int);
+  static sighandler_t zombie_signal_handler(int sig_nr, sighandler_t signalhandler){
+    struct sigaction new_sig, old_sig;
+    new_sig.sa_handler = signalhandler;
+    sigemptyset(&new_sig.sa_mask);
+    new_sig.sa_flags = SA_RESTART;
+    if(sigaction(sig_nr, &new_sig, &old_sig) < 0){
+      return SIG_ERR;
+    }
+    return old_sig.sa_handler;
+  }
+
+  static void no_zombie(int signr){
+    pid_t pid;
+    int ret;
+    while((pid = waitpid(-1, &ret, WNOHANG)) > 0){
+      std::printf("Child-Server with pid=%d closed.\n", pid);
+    }
+    return;
+  }
+
+
   Client::Client(ClientType t_clientType) {
+    zombie_signal_handler(SIGCHLD, no_zombie);
+
     setClientType(t_clientType);
     initClient();
   }
@@ -269,12 +298,25 @@ namespace xtbclient {
       int bytes;
       // first read, if record block termination found, return response
       bytes = SSL_read(ssl, buf, sizeof(buf));
-      response += buf;
-      if( is_response_end( response ) ){
-        // clean up response string
-        cleanResponse(response);
-        // return response
-        return response;
+      switch(SSL_get_error(ssl, bytes)){
+        case SSL_ERROR_NONE:
+          response.append(buf, strlen(buf));
+
+          if( is_response_end( response ) ){
+            // clean up response string
+            cleanResponse(response);
+            // return response
+            return response;
+          }
+          break;
+        case SSL_ERROR_ZERO_RETURN:
+          if( is_response_end( response ) ){
+            // clean up response string
+            cleanResponse(response);
+            // return response
+            return response;
+          }
+          break;
       }
 
       // no response end found, read on ..
@@ -286,7 +328,13 @@ namespace xtbclient {
 
         switch(SSL_get_error(ssl, bytes)){
           case SSL_ERROR_NONE:
-            response += buf;
+            response.append(buf, strlen(buf));
+
+            if( is_response_end( response ) ){
+              bLooping = false;
+            }
+            break;
+          case SSL_ERROR_ZERO_RETURN:
             if( is_response_end( response ) ){
               bLooping = false;
             }
@@ -300,6 +348,31 @@ namespace xtbclient {
 
     // return response string
     return response;
+  }
+
+  /*!
+   * Get ChartLastRequest
+   *
+   * @param ChartLastInfoRecrd& t_record
+   * @return ChartLastRequest
+   */
+  ChartLastRequest Client::getChartLastRequest(ChartLastInfoRecord &t_record) {
+
+    ChartLastRequest chartLastRequest;
+
+    if(t_record.m_start == 0){
+      Util::printError("ChartLastInfoRecord.m_start is 0!");
+      return chartLastRequest;
+    }
+
+    if(t_record.m_symbol.empty()){
+      Util::printError("ChartLastInfoRecord.m_symbol is empty!");
+      return chartLastRequest;
+    }
+
+    std::string request = sendRequest( RequestFactory::getChartLastRequest( t_record ) );
+    Util::debug(request);
+    return ResponseFactory::getChartLastRequest(request);
   }
 
   /*!

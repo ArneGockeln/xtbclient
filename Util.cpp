@@ -5,8 +5,12 @@
 #include "Util.h"
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
+#include "date/date.h"
+#include <chrono>
 
 using namespace rapidjson;
+using namespace date;
+using namespace std::chrono;
 
 namespace xtbclient {
   /*!
@@ -39,9 +43,29 @@ namespace xtbclient {
     }
 
     // error handling
-    if(document.HasMember("errorCode")){
-      fprintf(stderr, "APIError: %s\n", document["errorCode"].GetString());
+    hasAPIResponseError(*jsonData);
+  }
+
+  /*!
+   * Check for api request error code
+   *
+   * @param const std::string& jsonResponse
+   */
+  bool Util::hasAPIResponseError(const std::string &jsonResponse) {
+    Document document;
+    document.Parse<rapidjson::kParseStopWhenDoneFlag>(jsonResponse.c_str());
+
+    if(document.HasParseError()){
+      fprintf(stderr, "JSON Parse Error: %s\n", GetParseError_En(document.GetParseError()));
+      return true;
     }
+
+    if(document.HasMember("errorCode")){
+      fprintf(stderr, "API Error (%s): %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
+      return true;
+    }
+
+    return false;
   }
 
   // trim from start (in place)
@@ -114,5 +138,26 @@ namespace xtbclient {
    */
   char *Util::trim(char *s) {
     return rtrim(ltrim(s));
+  }
+
+  /*!
+   * Get UTC timestamp in milliseconds
+   *
+   * @param int t_day
+   * @param unsigned int t_month
+   * @param int t_year
+   * @param int t_hour
+   * @param int t_minute
+   * @param int t_second
+   * @return long long int
+   */
+  long long int Util::getUTCinMilliseconds(int t_day, unsigned int t_month, int t_year, int t_hour, int t_minute, int t_second) {
+    auto ymd = month(t_month)/t_day/t_year;
+    auto tod = make_time(hours{t_hour} + minutes{t_minute} + seconds{t_second});
+    system_clock::time_point tp = sys_days(ymd) + seconds(tod);
+
+    auto ms = duration_cast<milliseconds>(tp.time_since_epoch());
+
+    return ms.count();
   }
 }
