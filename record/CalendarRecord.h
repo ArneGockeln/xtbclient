@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct CalendarRecord {
     std::string m_country;
     std::string m_current;

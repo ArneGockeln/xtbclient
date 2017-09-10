@@ -9,7 +9,7 @@
 #include <string>
 #include "../enums/Period.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct ChartRangeInfoRecord {
     uint64_t m_end;
     Period m_period;

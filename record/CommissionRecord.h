@@ -5,7 +5,7 @@
 #ifndef XTBLIB_COMMISSIONRECORD_H
 #define XTBLIB_COMMISSIONRECORD_H
 
-namespace xtblib {
+namespace xtbclient {
   struct CommissionRecord {
     double m_commission;
     double m_rateOfExchange;

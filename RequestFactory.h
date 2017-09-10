@@ -10,6 +10,7 @@
 #include <rapidjson/pointer.h>
 #include "enums/Period.h"
 #include "record/ChartLastInfoRecord.h"
+#include "record/ChartRangeInfoRecord.h"
 
 namespace xtbclient {
   class RequestFactory {
@@ -25,6 +26,8 @@ namespace xtbclient {
     static std::string getCalendar();
     static std::string getCurrentUserData();
     static std::string getChartLastRequest(ChartLastInfoRecord &t_infoRecord);
+    static std::string getChartRangeRequest(ChartRangeInfoRecord &t_infoRecord);
+    static std::string getCommissionDef(const std::string& t_symbol, const double t_volume );
 
     // subscription commands
     static std::string subscribeBalance(std::string *t_streamSessionId);

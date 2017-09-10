@@ -12,11 +12,11 @@
 #include "../enums/MarginMode.h"
 #include "../enums/ProfitMode.h"
 #include <rapidjson/document.h>
-#include <stdio.h>
+#include <string>
 
 using namespace rapidjson;
 
-namespace xtblib {
+namespace xtbclient {
 
   struct SymbolRecord {
     double m_ask;

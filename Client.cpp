@@ -38,7 +38,6 @@ namespace xtbclient {
     return;
   }
 
-
   Client::Client(ClientType t_clientType) {
     zombie_signal_handler(SIGCHLD, no_zombie);
 
@@ -332,7 +331,7 @@ namespace xtbclient {
         switch(SSL_get_error(ssl, bytes)){
           case SSL_ERROR_NONE:
             response.append(buf, strlen(buf));
-
+          Util::debug( buf );
             if( is_response_end( response ) ){
               bLooping = false;
             }
@@ -355,6 +354,173 @@ namespace xtbclient {
 
     // return response string
     return response;
+  }
+
+  /*!
+   * Get all symbols as list
+   *
+   * @return std::vector<SymbolRecord>
+   */
+  std::vector<SymbolRecord> Client::getAllSymbols() {
+    std::vector<SymbolRecord> recordList;
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getAllSymbols() );
+
+    // Response
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    try {
+      auto returnData = getReturnData( std::move( response ) )->GetArray();
+
+      for(auto& obj : returnData){
+        SymbolRecord record;
+
+        if(!obj["ask"].IsNull()){
+          record.m_ask = obj["ask"].GetDouble();
+        }
+        if(!obj["bid"].IsNull()){
+          record.m_bid = obj["bid"].GetDouble();
+        }
+        if(!obj["categoryName"].IsNull()){
+          record.m_categoryName = obj["categoryName"].GetString();
+        }
+        if(!obj["contractSize"].IsNull()){
+          record.m_contractSize = obj["contractSize"].GetUint();
+        }
+        if(!obj["currency"].IsNull()){
+          record.m_currency = obj["currency"].GetString();
+        }
+        if(!obj["currencyPair"].IsNull()){
+          record.m_currencyPair = obj["currencyPair"].GetBool();
+        }
+        if(!obj["currencyProfit"].IsNull()){
+          record.m_currencyProfit = obj["currencyProfit"].GetString();
+        }
+        if(!obj["description"].IsNull()){
+          record.m_description = obj["description"].GetString();
+        }
+        if(!obj["expiration"].IsNull()){
+          record.m_expiration = obj["expiration"].GetUint64();
+        }
+        if(!obj["groupName"].IsNull()){
+          record.m_groupName = obj["groupName"].GetString();
+        }
+        if(!obj["high"].IsNull()){
+          record.m_high = obj["high"].GetDouble();
+        }
+        if(!obj["initialMargin"].IsNull()){
+          record.m_initialMargin = obj["initialMargin"].GetInt();
+        }
+        if(!obj["instantMaxVolume"].IsNull()){
+          record.m_instantMaxVolume = obj["instantMaxVolume"].GetUint();
+        }
+        if(!obj["leverage"].IsNull()){
+          record.m_leverage = obj["leverage"].GetDouble();
+        }
+        if(!obj["longOnly"].IsNull()){
+          record.m_longOnly = obj["longOnly"].GetBool();
+        }
+        if(!obj["lotMax"].IsNull()){
+          record.m_lotMax = obj["lotMax"].GetDouble();
+        }
+        if(!obj["lotMin"].IsNull()){
+          record.m_lotMin = obj["lotMin"].GetDouble();
+        }
+        if(!obj["lotStep"].IsNull()){
+          record.m_lotStep = obj["lotStep"].GetDouble();
+        }
+        if(!obj["low"].IsNull()){
+          record.m_low = obj["low"].GetDouble();
+        }
+        if(!obj["marginHedged"].IsNull()){
+          record.m_marginHedged = obj["marginHedged"].GetInt();
+        }
+        if(!obj["marginHedgedStrong"].IsNull()){
+          record.m_marginHedgedStrong = obj["marginHedgedStrong"].GetBool();
+        }
+        if(!obj["marginMaintenance"].IsNull()){
+          record.m_marginMaintenance = obj["marginMaintenance"].GetInt();
+        }
+        if(!obj["marginMode"].IsNull()){
+          record.m_marginMode = static_cast<MARGIN_MODE>(obj["marginMode"].GetInt());
+        }
+        if(!obj["percentage"].IsNull()){
+          record.m_percentage = obj["percentage"].GetDouble();
+        }
+        if(!obj["precision"].IsNull()){
+          record.m_precision = obj["precision"].GetInt();
+        }
+        if(!obj["profitMode"].IsNull()){
+          record.m_profitMode = static_cast<PROFIT_MODE>(obj["profitMode"].GetInt());
+        }
+        if(!obj["quoteId"].IsNull()){
+          record.m_quoteId = static_cast<QUOTEID>(obj["quoteId"].GetInt());
+        }
+        if(!obj["shortSelling"].IsNull()){
+          record.m_shortSelling = obj["shortSelling"].GetBool();
+        }
+        if(!obj["spreadRaw"].IsNull()){
+          record.m_spreadRaw = obj["spreadRaw"].GetDouble();
+        }
+        if(!obj["spreadTable"].IsNull()){
+          record.m_spreadTable = obj["spreadTable"].GetDouble();
+        }
+        if(!obj["starting"].IsNull()){
+          record.m_starting = obj["starting"].GetUint64();
+        }
+        if(!obj["stepRuleId"].IsNull()){
+          record.m_stepRuleId = obj["stepRuleId"].GetInt();
+        }
+        if(!obj["stopsLevel"].IsNull()){
+          record.m_stopsLevel = obj["stopsLevel"].GetInt();
+        }
+        if(!obj["swap_rollover3days"].IsNull()){
+          record.m_swap_rollover3days = obj["swap_rollover3days"].GetInt();
+        }
+        if(!obj["swapEnable"].IsNull()){
+          record.m_swapEnable = obj["swapEnable"].GetBool();
+        }
+        if(!obj["swapLong"].IsNull()){
+          record.m_swapLong = obj["swapLong"].GetDouble();
+        }
+        if(!obj["swapShort"].IsNull()){
+          record.m_swapShort = obj["swapShort"].GetDouble();
+        }
+        if(!obj["swapType"].IsNull()){
+          record.m_swapType = obj["swapType"].GetInt();
+        }
+        if(!obj["symbol"].IsNull()){
+          record.m_symbol = obj["symbol"].GetString();
+        }
+        if(!obj["tickSize"].IsNull()){
+          record.m_tickSize = obj["tickSize"].GetDouble();
+        }
+        if(!obj["tickValue"].IsNull()){
+          record.m_tickValue = obj["tickValue"].GetDouble();
+        }
+        if(!obj["time"].IsNull()){
+          record.m_time = obj["time"].GetUint64();
+        }
+        if(!obj["timeString"].IsNull()){
+          record.m_timeString = obj["timeString"].GetString();
+        }
+        if(!obj["trailingEnabled"].IsNull()){
+          record.m_trailingEnabled = obj["trailingEnabled"].GetBool();
+        }
+        if(!obj["type"].IsNull()){
+          record.m_type = obj["type"].GetInt();
+        }
+
+        recordList.push_back(record);
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getAllSymbols()\n");
+    }
+
+    return recordList;
   }
 
   /*!
@@ -427,6 +593,200 @@ namespace xtbclient {
     }
 
     return chartLastRequest;
+  }
+
+  /*!
+   * Get Calendar record list
+   *
+   * @return std::vector<CalendarRecord>
+   */
+  std::vector<CalendarRecord> Client::getCalendar() {
+    std::vector<CalendarRecord> recordList;
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getCalendar() );
+
+    // Response
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    try {
+      auto returnData = getReturnData(std::move(response))->GetArray();
+
+      for(auto& obj : returnData){
+        CalendarRecord record;
+        // Defaults
+        record.m_country = "";
+        record.m_current = "";
+        record.m_forecast = "";
+        record.m_impact = "";
+        record.m_period = "";
+        record.m_previous = "";
+        record.m_time = 0;
+        record.m_title = "";
+
+        // Json
+        if(!obj["country"].IsNull()){
+          record.m_country = obj["country"].GetString();
+        }
+
+        if(!obj["current"].IsNull()){
+          record.m_current = obj["current"].GetString();
+        }
+
+        if(!obj["forecast"].IsNull()){
+          record.m_forecast = obj["forecast"].GetString();
+        }
+
+        if(!obj["impact"].IsNull()){
+          record.m_impact = obj["impact"].GetString();
+        }
+
+        if(!obj["period"].IsNull()){
+          record.m_period = obj["period"].GetString();
+        }
+
+        if(!obj["previous"].IsNull()){
+          record.m_previous = obj["previous"].GetString();
+        }
+
+        if(!obj["time"].IsNull()){
+          record.m_time = obj["time"].GetUint64();
+        }
+
+        if(!obj["title"].IsNull()){
+          record.m_title = obj["title"].GetString();
+        }
+
+        recordList.push_back(record);
+      }
+
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getCalendar()\n");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get getChartRangeRequest
+   *
+   * @param ChartRangeInfoRecord t_record
+   * @return ChartLastRequest
+   */
+  ChartLastRequest Client::getChartLastRangeRequest(ChartRangeInfoRecord &t_record) {
+    ChartLastRequest chartLastRequest;
+
+    // Request validation
+    if(t_record.m_start == 0){
+      Util::printError("ChartRangeInfoRecord.m_start is 0!");
+      return chartLastRequest;
+    }
+
+    if(t_record.m_end == 0){
+      Util::printError("ChartRangeInfoRecord.m_end is 0!");
+      return chartLastRequest;
+    }
+
+    if(t_record.m_symbol.empty()){
+      Util::printError("ChartRangeInfoRecord.m_symbol is empty!");
+      return chartLastRequest;
+    }
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getChartRangeRequest( t_record ) );
+
+    // Response
+    if(Util::hasAPIResponseError( response )){
+      return chartLastRequest;
+    }
+
+    try {
+      auto returnData = getReturnData( std::move( response ) )->GetObject();
+
+      if(!returnData["digits"].IsNull()){
+        chartLastRequest.setDigits( returnData["digits"].GetInt() );
+      }
+
+      if(!returnData["rateInfos"].IsNull() && returnData["rateInfos"].IsArray()){
+        for(auto& rateInfo : returnData["rateInfos"].GetArray()){
+          RateInfoRecord rateInfoRecord;
+
+          if(!rateInfo["close"].IsNull()){
+            rateInfoRecord.m_close = rateInfo["close"].GetDouble();
+          }
+          if(!rateInfo["ctm"].IsNull()){
+            rateInfoRecord.m_ctm = rateInfo["ctm"].GetUint64();
+          }
+          if(!rateInfo["ctmString"].IsNull()){
+            rateInfoRecord.m_ctmString = rateInfo["ctmString"].GetString();
+          }
+          if(!rateInfo["high"].IsNull()){
+            rateInfoRecord.m_high = rateInfo["high"].GetDouble();
+          }
+          if(!rateInfo["low"].IsNull()){
+            rateInfoRecord.m_low = rateInfo["low"].GetDouble();
+          }
+          if(!rateInfo["open"].IsNull()){
+            rateInfoRecord.m_open = rateInfo["open"].GetDouble();
+          }
+          if(!rateInfo["vol"].IsNull()){
+            rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
+          }
+
+          chartLastRequest.getRateInfos().push_back(rateInfoRecord);
+        }
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getChartLastRangeRequest()\n");
+    }
+
+    return chartLastRequest;
+  }
+
+  /*!
+   * Get commission def
+   *
+   * @param const std::string& t_symbol
+   * @param const double t_volume
+   * @return CommissionRecord
+   */
+  CommissionRecord Client::getCommissionDef(const std::string &t_symbol, const double t_volume) {
+    CommissionRecord commissionRecord;
+    // Defaults
+    // Defaults
+    commissionRecord.m_rateOfExchange = 0;
+    commissionRecord.m_commission = 0;
+
+    // Validation
+    if(t_symbol.empty()){
+      Util::printError("Symbol is empty!");
+      return commissionRecord;
+    }
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getCommissionDef(t_symbol, t_volume) );
+
+    if(Util::hasAPIResponseError( response )){
+      return commissionRecord;
+    }
+
+    try {
+      auto returnData = getReturnData( response )->GetObject();
+
+      if(!returnData["commission"].IsNull()){
+        commissionRecord.m_commission = returnData["commission"].GetDouble();
+      }
+
+      if(!returnData["rateOfExchange"].IsNull()){
+        commissionRecord.m_rateOfExchange = returnData["rateOfExchange"].GetDouble();
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getCommissionDef()\n");
+    }
+
+    return commissionRecord;
   }
 
   /*!

@@ -8,7 +8,7 @@
 #include <vector>
 #include "RateInfoRecord.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct ChartLastRequestRecord {
     int m_digits;
     std::vector<RateInfoRecord> m_rateInfos;

@@ -14,6 +14,10 @@
 #include "Util.h"
 #include "endpoints/ChartLastRequest.h"
 #include "record/ChartLastInfoRecord.h"
+#include "record/SymbolRecord.h"
+#include "record/CalendarRecord.h"
+#include "record/ChartRangeInfoRecord.h"
+#include "record/CommissionRecord.h"
 #include <vector>
 #include <cstdint>
 
@@ -72,9 +76,11 @@ namespace xtbclient {
     /*!
      * Requests
      */
-
-    ChartLastRequest getChartLastRequest(ChartLastInfoRecord& t_record);
-
+    std::vector<SymbolRecord> getAllSymbols();
+    ChartLastRequest getChartLastRequest( ChartLastInfoRecord& t_record );
+    std::vector<CalendarRecord> getCalendar();
+    ChartLastRequest getChartLastRangeRequest( ChartRangeInfoRecord& t_record );
+    CommissionRecord getCommissionDef( const std::string& t_symbol, const double t_volume );
 
     /*!
      * Subscriptions
