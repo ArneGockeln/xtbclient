@@ -11,7 +11,7 @@
 #include "QuoteRecord.h"
 #include "TradingRecord.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct TradingHourRecord {
     std::vector<QuoteRecord> m_quotes;
     std::string m_symbol;

@@ -10,7 +10,7 @@
 
 using namespace rapidjson;
 
-namespace xtblib {
+namespace xtbclient {
   struct BalanceRecord {
     double m_balance;
     double m_credit;

@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct UserDataRecord {
     int m_companyUnit;
     std::string m_currency;

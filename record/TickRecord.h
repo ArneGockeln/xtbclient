@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct TickRecord {
     double m_ask;
     int m_askVolume;

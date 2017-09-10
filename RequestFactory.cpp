@@ -40,8 +40,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::getAllSymbols() {
-    std::string cmd = "getAllSymbols";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("getAllSymbols");
   }
 
   /*!
@@ -50,8 +49,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::getCalendar() {
-    std::string cmd = "getCalendar";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("getCalendar");
   }
 
   /*!
@@ -60,8 +58,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::getCurrentUserData() {
-    std::string cmd = "getCurrentUserData";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("getCurrentUserData");
   }
 
   /**
@@ -101,7 +98,7 @@ namespace xtbclient {
   }
 
   /*!
-   * Get commision def
+   * Get commision def request
    *
    * @param std::string& t_symbol
    * @param double t_volume
@@ -118,14 +115,293 @@ namespace xtbclient {
   }
 
   /*!
+   * Get IBs history data request
+   *
+   * @param const long long t_start
+   * @param const long long t_end
+   * @return std::string
+   */
+  std::string RequestFactory::getIbsHistory(const long long t_start, const long long t_end) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getIbsHistory");
+    SetValueByPointer(document, "/arguments/start", t_start);
+    SetValueByPointer(document, "/arguments/end", t_end);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get margin level request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getMarginLevel() {
+    return noArgumentCommand("getMarginLevel");
+  }
+
+  /*!
+   * Get margin trade request
+   *
+   * @param const std::string& t_symbol
+   * @param double t_volume
+   * @return std::string
+   */
+  std::string RequestFactory::getMarginTrade(const std::string &t_symbol, double t_volume) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getMarginTrade");
+    SetValueByPointer(document, "/arguments/symbol", StringRef(t_symbol.c_str()));
+    SetValueByPointer(document, "/arguments/volume", t_volume);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get news request
+   *
+   * @param long long t_start
+   * @param long long t_end
+   * @return std::string
+   */
+  std::string RequestFactory::getNews(long long t_start, long long t_end) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getNews");
+    SetValueByPointer(document, "/arguments/start", t_start);
+    SetValueByPointer(document, "/arguments/end", t_end);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get profit calculation request
+   *
+   * @param double t_closePrice
+   * @param double t_openPrice
+   * @param TransactionCmd t_cmd
+   * @param std::string& t_symbol
+   * @param double t_volume
+   * @return std::string
+   */
+  std::string RequestFactory::getProfitCalculation(double t_closePrice, double t_openPrice, TransactionCmd t_cmd,
+                                                   const std::string &t_symbol, double t_volume) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getProfitCalculation");
+    SetValueByPointer(document, "/arguments/closePrice", t_closePrice);
+    SetValueByPointer(document, "/arguments/cmd", static_cast<int>(t_cmd));
+    SetValueByPointer(document, "/arguments/openPrice", t_openPrice);
+    SetValueByPointer(document, "/arguments/symbol", t_symbol.c_str());
+    SetValueByPointer(document, "/arguments/volume", t_volume);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get server time request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getServerTime() {
+    return noArgumentCommand("getServerTime");
+  }
+
+  /*!
+   * Get step rules request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getStepRules() {
+    return noArgumentCommand("getStepRules");
+  }
+
+  /*!
+   * Get symbol request
+   *
+   * @param const std::string& t_symbol
+   * @return std::string
+   */
+  std::string RequestFactory::getSymbol(const std::string &t_symbol) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getSymbol");
+    SetValueByPointer(document, "/arguments/symbol", t_symbol.c_str());
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get tick prices request, alternative is the streaming command!
+   *
+   * @param int t_level
+   * @param long long t_timestamp
+   * @param std::vector<std::string> t_symbols
+   * @return std::string
+   */
+  std::string RequestFactory::getTickPrices(int t_level, long long t_timestamp, std::vector<std::string> t_symbols) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getTickPrices");
+    SetValueByPointer(document, "/arguments/level", t_level);
+    SetValueByPointer(document, "/arguments/timestamp", t_timestamp);
+
+    Value symbols(kArrayType);
+    Document::AllocatorType& allocator = document.GetAllocator();
+
+    for(std::string &s : t_symbols){
+      symbols.PushBack(StringRef(s.c_str()), allocator);
+    }
+
+    SetValueByPointer(document, "/arguments/symbols", symbols);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get trade records request
+   *
+   * @param std::vector<long long> t_orders
+   * @return std::string
+   */
+  std::string RequestFactory::getTradeRecords(std::vector<long long> t_orders) {
+    Document document;
+
+    Document::AllocatorType& allocator = document.GetAllocator();
+
+    SetValueByPointer(document, "/command", "getTradeRecords");
+
+    Value orders(kArrayType);
+    for(auto &order : t_orders){
+      orders.PushBack(order, allocator);
+    }
+
+    SetValueByPointer(document, "/arguments/orders", orders);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get trades request
+   *
+   * @param bool t_openedOnly
+   * @return std::string
+   */
+  std::string RequestFactory::getTrades(bool t_openedOnly) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getTrades");
+    SetValueByPointer(document, "/arguments/openedOnly", t_openedOnly);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get trades history request
+   *
+   * @param long long t_start
+   * @param long long t_end
+   * @return std::string
+   */
+  std::string RequestFactory::getTradesHistory(long long t_start, long long t_end) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getTradesHistory");
+    SetValueByPointer(document, "/arguments/start", t_start);
+    SetValueByPointer(document, "/arguments/end", t_end);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get trading hours request
+   *
+   * @param std::vector<std::string> t_symbols
+   * @return std::string
+   */
+  std::string RequestFactory::getTradingHours(std::vector<std::string> t_symbols) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "getTradingHours");
+
+    Value symbols(kArrayType);
+    Document::AllocatorType& allocator = document.GetAllocator();
+
+    for(auto &sym : t_symbols){
+      symbols.PushBack(StringRef(sym.c_str()), allocator);
+    }
+
+    SetValueByPointer(document, "/arguments/symbols", symbols);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get version request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getVersion() {
+    return noArgumentCommand("getVersion");
+  }
+
+  /*!
+   * Get ping request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getPing() {
+    return noArgumentCommand("ping");
+  }
+
+  /*!
+   * Get trade transaction request
+   *
+   * @param TradeTransactionInfo& t_info
+   * @return std::string
+   */
+  std::string RequestFactory::getTradeTransaction(TradeTransactionInfo &m_tradeTransInfo) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "tradeTransaction");
+    SetValueByPointer(document, "/arguments/tradeTransInfo/cmd", m_tradeTransInfo.m_cmd);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/customComment", m_tradeTransInfo.m_customComment.c_str());
+    SetValueByPointer(document, "/arguments/tradeTransInfo/expiration", m_tradeTransInfo.m_expiration);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/offset", m_tradeTransInfo.m_offset);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/order", m_tradeTransInfo.m_order);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/price", m_tradeTransInfo.m_price);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/sl", m_tradeTransInfo.m_sl);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/symbol", m_tradeTransInfo.m_symbol.c_str());
+    SetValueByPointer(document, "/arguments/tradeTransInfo/tp", m_tradeTransInfo.m_tp);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/type", m_tradeTransInfo.m_type);
+    SetValueByPointer(document, "/arguments/tradeTransInfo/volume", m_tradeTransInfo.m_volume);
+
+    return getStringify(&document);
+  }
+
+  /*!
+   * Get trade transaction status request
+   *
+   * @param long long t_order
+   * @return std::string
+   */
+  std::string RequestFactory::getTradeTransactionStatus(long long t_order) {
+    Document document;
+
+    SetValueByPointer(document, "/command", "tradeTransactionStatus");
+    SetValueByPointer(document, "/arguments/order", t_order);
+
+    return getStringify(&document);
+  }
+
+  /*!
    * Get request for balance subscription
    *
    * @param std::string* t_streamSessionId
    * @return std::string
    */
   std::string RequestFactory::subscribeBalance(std::string *t_streamSessionId) {
-    std::string cmd = "getBalance";
-    return startCommand(&cmd, t_streamSessionId);
+    return startCommand("getBalance", t_streamSessionId);
   }
 
   /*!
@@ -134,8 +410,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::stopBalance() {
-    std::string cmd = "stopBalance";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("stopBalance");
   }
 
   /*!
@@ -176,8 +451,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::subscribeKeepAlive(std::string* t_streamSessionId) {
-    std::string cmd = "getKeepAlive";
-    return startCommand(&cmd, t_streamSessionId);
+    return startCommand("getKeepAlive", t_streamSessionId);
   }
 
   /*!
@@ -186,8 +460,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::stopKeepAlive() {
-    std::string cmd = "stopKeepAlive";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("stopKeepAlive");
   }
 
   /*!
@@ -197,8 +470,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::subscribeNews(std::string* t_streamSessionId) {
-    std::string cmd = "getNews";
-    return startCommand(&cmd, t_streamSessionId);
+    return startCommand("getNews", t_streamSessionId);
   }
 
   /*!
@@ -207,8 +479,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::stopNews() {
-    std::string cmd = "stopNews";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("stopNews");
   }
 
   /*!
@@ -218,8 +489,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::subscribeProfits(std::string* t_streamSessionId) {
-    std::string cmd = "getProfits";
-    return startCommand(&cmd, t_streamSessionId);
+    return startCommand("getProfits", t_streamSessionId);
   }
 
   /*!
@@ -228,8 +498,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::stopProfits() {
-    std::string cmd = "stopProfits";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("stopProfits");
   }
 
 
@@ -276,8 +545,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::subscribeTrades(std::string* t_streamSessionId) {
-    std::string cmd = "getTrades";
-    return startCommand(&cmd, t_streamSessionId);
+    return startCommand("getTrades", t_streamSessionId);
   }
 
   /*!
@@ -286,8 +554,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::stopTrades() {
-    std::string cmd = "stopTrades";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("stopTrades");
   }
 
   /*!
@@ -297,8 +564,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::subscribeTradeStatus(std::string* t_streamSessionId) {
-    std::string cmd = "getTradeStatus";
-    return startCommand(&cmd, t_streamSessionId);
+    return startCommand("getTradeStatus", t_streamSessionId);
   }
 
   /*!
@@ -307,8 +573,7 @@ namespace xtbclient {
    * @return std::string
    */
   std::string RequestFactory::stopTradeStatus() {
-    std::string cmd = "stopTradeStatus";
-    return noArgumentCommand(&cmd);
+    return noArgumentCommand("stopTradeStatus");
   }
 
   /*!
@@ -317,10 +582,10 @@ namespace xtbclient {
    * @param std::string t_command
    * @return std::string
    */
-  std::string RequestFactory::startCommand(std::string* t_command, std::string* t_streamSessionId){
+  std::string RequestFactory::startCommand(const char* t_command, std::string* t_streamSessionId){
     Document document;
 
-    SetValueByPointer(document, "/command", StringRef(t_command->data()));
+    SetValueByPointer(document, "/command", StringRef(t_command));
     SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId->data()));
 
     return getStringify(&document);
@@ -329,13 +594,13 @@ namespace xtbclient {
   /*!
    * Get single command without arguments
    *
-   * @param std::string t_command
+   * @param const char* t_command
    * @return std::string
    */
-  std::string RequestFactory::noArgumentCommand(std::string *t_command){
+  std::string RequestFactory::noArgumentCommand(const char* t_command){
     Document document;
 
-    SetValueByPointer(document, "/command", StringRef(t_command->data()));
+    SetValueByPointer(document, "/command", StringRef(t_command));
 
     return getStringify(&document);
   }

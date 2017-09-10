@@ -8,7 +8,7 @@
 #include <string>
 #include "../enums/Side.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct IBRecord {
     double m_closePrice;
     std::string m_login;

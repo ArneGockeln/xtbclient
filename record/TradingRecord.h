@@ -8,7 +8,7 @@
 #include <cstdint>
 #include "../enums/Weekdays.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct TradingRecord {
     Weekdays m_day;
     uint64_t m_fromT;

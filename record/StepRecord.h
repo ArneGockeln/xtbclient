@@ -5,7 +5,7 @@
 #ifndef XTBLIB_STEPRECORD_H
 #define XTBLIB_STEPRECORD_H
 
-namespace xtblib {
+namespace xtbclient {
   struct StepRecord {
     double m_fromValue;
     double m_step;

@@ -8,15 +8,18 @@
 #include <string>
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
+#include <vector>
 #include "enums/Period.h"
+#include "enums/TransactionCmd.h"
 #include "record/ChartLastInfoRecord.h"
 #include "record/ChartRangeInfoRecord.h"
+#include "record/TradeTransactionInfo.h"
 
 namespace xtbclient {
   class RequestFactory {
   private:
-    static std::string startCommand(std::string* t_command, std::string* t_streamSessionId);
-    static std::string noArgumentCommand(std::string *t_command);
+    static std::string startCommand(const char* t_command, std::string* t_streamSessionId);
+    static std::string noArgumentCommand(const char* t_command);
     static std::string getStringify(rapidjson::Document*);
 
   public:
@@ -27,7 +30,24 @@ namespace xtbclient {
     static std::string getCurrentUserData();
     static std::string getChartLastRequest(ChartLastInfoRecord &t_infoRecord);
     static std::string getChartRangeRequest(ChartRangeInfoRecord &t_infoRecord);
-    static std::string getCommissionDef(const std::string& t_symbol, const double t_volume );
+    static std::string getCommissionDef(const std::string& t_symbol, double t_volume );
+    static std::string getIbsHistory(long long t_start, long long t_end);
+    static std::string getMarginLevel();
+    static std::string getMarginTrade(const std::string& t_symbol, double t_volume );
+    static std::string getNews(long long t_start, long long t_end);
+    static std::string getProfitCalculation(double t_closePrice, double t_openPrice, TransactionCmd t_cmd, const std::string& t_symbol, double t_volume);
+    static std::string getServerTime();
+    static std::string getStepRules();
+    static std::string getSymbol(const std::string& t_symbol);
+    static std::string getTickPrices(int t_level, long long t_timestamp, std::vector<std::string> t_symbols);
+    static std::string getTradeRecords(std::vector<long long> t_orders);
+    static std::string getTrades(bool t_openedOnly);
+    static std::string getTradesHistory(long long t_start, long long t_end);
+    static std::string getTradingHours(std::vector<std::string> t_symbols);
+    static std::string getVersion();
+    static std::string getPing();
+    static std::string getTradeTransaction(TradeTransactionInfo& t_info);
+    static std::string getTradeTransactionStatus(long long t_order);
 
     // subscription commands
     static std::string subscribeBalance(std::string *t_streamSessionId);

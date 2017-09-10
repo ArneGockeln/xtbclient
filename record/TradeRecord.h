@@ -9,7 +9,7 @@
 #include <string>
 #include "../enums/TransactionCmd.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct TradeRecord {
     double m_close_price;
     uint64_t m_close_time;

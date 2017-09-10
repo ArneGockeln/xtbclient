@@ -790,6 +790,1064 @@ namespace xtbclient {
   }
 
   /*!
+   * Get current user data
+   *
+   * @return UserDataRecord
+   */
+  UserDataRecord Client::getCurrentUserData() {
+    UserDataRecord userDataRecord;
+    // Defaults
+    userDataRecord.m_companyUnit = 0;
+    userDataRecord.m_currency = "";
+    userDataRecord.m_group = "";
+    userDataRecord.m_ibAccount = false;
+    userDataRecord.m_leverage = 0;
+    userDataRecord.m_leverageMultiplier = 0;
+    userDataRecord.m_spreadType = "";
+    userDataRecord.m_trailingStop = false;
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getCurrentUserData() );
+
+    if(Util::hasAPIResponseError( response )){
+      return userDataRecord;
+    }
+
+    try {
+      auto obj = getReturnData( response )->GetObject();
+
+      if(!obj["companyUnit"].IsNull()){
+        userDataRecord.m_companyUnit = obj["companyUnit"].GetInt();
+      }
+
+      if(!obj["currency"].IsNull()){
+        userDataRecord.m_currency = obj["currency"].GetString();
+      }
+
+      if(!obj["group"].IsNull()){
+        userDataRecord.m_group = obj["group"].GetString();
+      }
+
+      if(!obj["ibAccount"].IsNull()){
+        userDataRecord.m_ibAccount = obj["ibAccount"].GetBool();
+      }
+
+      if(!obj["leverage"].IsNull()){
+        userDataRecord.m_leverage = obj["leverage"].GetInt();
+      }
+
+      if(!obj["leverageMultiplier"].IsNull()){
+        userDataRecord.m_leverageMultiplier = obj["leverageMultiplier"].GetDouble();
+      }
+
+      if(!obj["spreadType"].IsNull()){
+        userDataRecord.m_spreadType = obj["spreadType"].GetString();
+      }
+
+      if(!obj["trailingStop"].IsNull()){
+        userDataRecord.m_trailingStop = obj["trailingStop"].GetBool();
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getCurrentUserData()\n");
+    }
+
+    return userDataRecord;
+  }
+
+  /*!
+   * Get ibs history data
+   *
+   * @param const long long t_start
+   * @param const long long t_end
+   * @return std::vector<IBRecord>
+   */
+  std::vector<IBRecord> Client::getIbsHistory(const long long t_start, const long long t_end) {
+    std::vector<IBRecord> recordList;
+
+    // Validate
+    if(t_start == 0){
+      Util::printError("start time is 0!");
+      return recordList;
+    }
+
+    if(t_end == 0){
+      Util::printError("end time is 0!");
+      return recordList;
+    }
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getIbsHistory( t_start, t_end ) );
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    try {
+
+      auto returnData = getReturnData( response )->GetArray();
+      for(auto &obj : returnData){
+        IBRecord record;
+
+        // defaults
+        record.m_closePrice = 0;
+        record.m_login = "";
+        record.m_nominal = 0;
+        record.m_openPrice = 0;
+        record.m_side = Side::S_IS_NULL;
+        record.m_surname = "";
+        record.m_symbol = "";
+        record.m_timestamp = 0;
+        record.m_volume = 0;
+
+        // get json values
+        if(!obj["closePrice"].IsNull()){
+          record.m_closePrice = obj["closePrice"].GetDouble();
+        }
+
+        if(!obj["login"].IsNull()){
+          record.m_login = obj["login"].GetString();
+        }
+
+        if(!obj["nominal"].IsNull()){
+          record.m_nominal = obj["nominal"].GetDouble();
+        }
+
+        if(!obj["openPrice"].IsNull()){
+          record.m_openPrice = obj["openPrice"].GetDouble();
+        }
+
+        if(!obj["side"].IsNull()){
+          int theSide = obj["side"].GetInt();
+          if(theSide == 0){
+            record.m_side = Side::S_BUY;
+          } else {
+            record.m_side = Side::S_SELL;
+          }
+        }
+
+        if(!obj["surname"].IsNull()){
+          record.m_surname = obj["surname"].GetString();
+        }
+
+        if(!obj["symbol"].IsNull()){
+          record.m_symbol = obj["symbol"].GetString();
+        }
+
+        if(!obj["timestamp"].IsNull()){
+          record.m_timestamp = obj["timestamp"].GetUint64();
+        }
+
+        if(!obj["volume"].IsNull()){
+          record.m_volume = obj["volume"].GetDouble();
+        }
+
+        recordList.push_back(record);
+      }
+
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getIbsHistory()\n");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get margin level
+   *
+   * @return MarginLevelRecord
+   */
+  MarginLevelRecord Client::getMarginLevel() {
+    MarginLevelRecord record;
+
+    // Defaults
+    record.m_balance = 0;
+    record.m_credit = 0;
+    record.m_currency = "";
+    record.m_equity = 0;
+    record.m_margin = 0;
+    record.m_margin_free = 0;
+    record.m_margin_level = 0;
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getMarginLevel() );
+    if(Util::hasAPIResponseError( response )){
+      return record;
+    }
+
+    // Parse
+    try {
+      auto obj = getReturnData( response )->GetObject();
+
+      if(!obj["balance"].IsNull()){
+        record.m_balance = obj["balance"].GetDouble();
+      }
+      if(!obj["credit"].IsNull()){
+        record.m_credit = obj["credit"].GetDouble();
+      }
+      if(!obj["currency"].IsNull()){
+        record.m_currency = obj["currency"].GetString();
+      }
+      if(!obj["equity"].IsNull()){
+        record.m_equity = obj["equity"].GetDouble();
+      }
+      if(!obj["margin"].IsNull()){
+        record.m_margin = obj["margin"].GetDouble();
+      }
+      if(!obj["margin_free"].IsNull()){
+        record.m_margin_free = obj["margin_free"].GetDouble();
+      }
+      if(!obj["margin_level"].IsNull()){
+        record.m_margin_level = obj["margin_level"].GetDouble();
+      }
+
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getMarginLevel()\n");
+    }
+
+    return record;
+  }
+
+  /*!
+   * Get Margin trade
+   *
+   * @param const std::string& t_symbol
+   * @param double t_volume
+   * @return double
+   */
+  double Client::getMarginTrade(const std::string &t_symbol, double t_volume) {
+    // Validate
+    if(t_symbol.empty()){
+      Util::printError("Symbol is empty!");
+      return 0;
+    }
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getMarginTrade(t_symbol, t_volume) );
+    if(Util::hasAPIResponseError( response )){
+      return 0;
+    }
+
+    double ret = 0;
+    try {
+      auto obj = getReturnData( response )->GetObject();
+
+      if(!obj["margin"].IsNull()){
+        ret = obj["margin"].GetDouble();
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getMarginTrade()\n");
+    }
+
+    return ret;
+  }
+
+  /*!
+   * Get news
+   *
+   * @param long long t_start
+   * @param long long t_end
+   * @return std::vector<NewsRecord>
+   */
+  std::vector<NewsRecord> Client::getNews(long long t_start, long long t_end) {
+    std::vector<NewsRecord> newsList;
+
+    // Validate
+    if(t_start == 0){
+      Util::printError("Start time is 0!");
+      return newsList;
+    }
+
+    // Request
+    std::string response = sendRequest( RequestFactory::getNews(t_start, t_end) );
+    if(Util::hasAPIResponseError( response )){
+      return newsList;
+    }
+
+    try {
+      for(auto& obj : getReturnData( response )->GetArray()){
+        NewsRecord record;
+
+        // Defaults
+        record.m_body = "";
+        record.m_bodylen = 0;
+        record.m_key = "";
+        record.m_time = 0;
+        record.m_timeString = "";
+        record.m_title = "";
+
+        if(!obj["body"].IsNull()){
+          record.m_body = obj["body"].GetString();
+        }
+        if(!obj["bodylen"].IsNull()){
+          record.m_bodylen = obj["bodylen"].GetInt();
+        }
+        if(!obj["key"].IsNull()){
+          record.m_key = obj["key"].GetString();
+        }
+        if(!obj["time"].IsNull()){
+          record.m_time = obj["time"].GetUint64();
+        }
+        if(!obj["timeString"].IsNull()){
+          record.m_timeString = obj["timeString"].GetString();
+        }
+        if(!obj["title"].IsNull()){
+          record.m_title = obj["title"].GetString();
+        }
+
+        newsList.push_back(record);
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getNews()\n");
+    }
+
+    return newsList;
+  }
+
+  /*!
+   * Get profit calculation
+   *
+   * @param double t_closePrice
+   * @param double t_openPrice
+   * @param TransactionCmd t_cmd
+   * @param const std::string& t_symbol
+   * @param double t_volume
+   * @return double
+   */
+  double Client::getProfitCalculation(double t_closePrice, double t_openPrice, TransactionCmd t_cmd,
+                                      const std::string &t_symbol, double t_volume) {
+    double ret = 0;
+
+    // validate
+    if(t_symbol.empty()){
+      Util::printError("Symbol is empty!");
+      return ret;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getProfitCalculation(t_closePrice, t_openPrice, t_cmd, t_symbol, t_volume));
+    if(Util::hasAPIResponseError( response )){
+      return ret;
+    }
+
+    // parse
+    try {
+      auto obj = getReturnData( response )->GetObject();
+      if(!obj["profit"].IsNull()){
+        ret = obj["profit"].GetDouble();
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getProfitCalculation()\n");
+    }
+
+    return ret;
+  }
+
+  /*!
+   * Get Server time
+   *
+   * @return ServerTimeRecord
+   */
+  ServerTimeRecord Client::getServerTime() {
+    ServerTimeRecord serverTimeRecord;
+
+    // request
+    std::string response = sendRequest( RequestFactory::getServerTime() );
+    if(Util::hasAPIResponseError( response )){
+      return serverTimeRecord;
+    }
+
+    try {
+      auto obj = getReturnData( response )->GetObject();
+      if(!obj["time"].IsNull()){
+        serverTimeRecord.m_time = obj["time"].GetUint64();
+      }
+      if(!obj["timeString"].IsNull()){
+        serverTimeRecord.m_timeString = obj["timeString"].GetString();
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getServerTime()");
+    }
+
+    return serverTimeRecord;
+  }
+
+  /*!
+   * Get step rules
+   *
+   * @return std::vector<StepRuleRecord>
+   */
+  std::vector<StepRuleRecord> Client::getStepRules() {
+    std::vector<StepRuleRecord> recordList;
+
+    // request
+    std::string response = sendRequest( RequestFactory::getStepRules() );
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    // parse
+    try {
+      for(auto& obj : getReturnData( response )->GetArray()){
+        StepRuleRecord record;
+        record.m_id = 0;
+        record.m_name = "";
+        record.m_steps = {};
+
+        if(!obj["id"].IsNull()){
+          record.m_id = obj["id"].GetInt();
+        }
+        if(!obj["name"].IsNull()){
+          record.m_name = obj["name"].GetString();
+        }
+        if(!obj["steps"].IsNull() && obj["steps"].IsArray()){
+          for(auto& stepObj : obj["steps"].GetArray()){
+            StepRecord stepRecord;
+            stepRecord.m_fromValue = 0;
+            stepRecord.m_step = 0;
+
+            if(!stepObj["fromValue"].IsNull()){
+              stepRecord.m_fromValue = stepObj["fromValue"].GetDouble();
+            }
+            if(!stepObj["step"].IsNull()){
+              stepRecord.m_step = stepObj["step"].GetDouble();
+            }
+
+            record.m_steps.push_back(stepRecord);
+          }
+        }
+
+        recordList.push_back(record);
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getStepRules()");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get symbol info
+   *
+   * @param const std::string& t_symbol
+   * @return SymbolRecord
+   */
+  SymbolRecord Client::getSymbol(const std::string &t_symbol) {
+    SymbolRecord record;
+
+    // request
+    std::string response = sendRequest( RequestFactory::getSymbol( t_symbol ) );
+    if(Util::hasAPIResponseError( response )){
+      return record;
+    }
+
+    // parse
+    try {
+      auto obj = getReturnData( response )->GetObject();
+      if(!obj["ask"].IsNull()){
+        record.m_ask = obj["ask"].GetDouble();
+      }
+      if(!obj["bid"].IsNull()){
+        record.m_bid = obj["bid"].GetDouble();
+      }
+      if(!obj["categoryName"].IsNull()){
+        record.m_categoryName = obj["categoryName"].GetString();
+      }
+      if(!obj["contractSize"].IsNull()){
+        record.m_contractSize = obj["contractSize"].GetUint();
+      }
+      if(!obj["currency"].IsNull()){
+        record.m_currency = obj["currency"].GetString();
+      }
+      if(!obj["currencyPair"].IsNull()){
+        record.m_currencyPair = obj["currencyPair"].GetBool();
+      }
+      if(!obj["currencyProfit"].IsNull()){
+        record.m_currencyProfit = obj["currencyProfit"].GetString();
+      }
+      if(!obj["description"].IsNull()){
+        record.m_description = obj["description"].GetString();
+      }
+      if(!obj["expiration"].IsNull()){
+        record.m_expiration = obj["expiration"].GetUint64();
+      }
+      if(!obj["groupName"].IsNull()){
+        record.m_groupName = obj["groupName"].GetString();
+      }
+      if(!obj["high"].IsNull()){
+        record.m_high = obj["high"].GetDouble();
+      }
+      if(!obj["initialMargin"].IsNull()){
+        record.m_initialMargin = obj["initialMargin"].GetInt();
+      }
+      if(!obj["instantMaxVolume"].IsNull()){
+        record.m_instantMaxVolume = obj["instantMaxVolume"].GetUint();
+      }
+      if(!obj["leverage"].IsNull()){
+        record.m_leverage = obj["leverage"].GetDouble();
+      }
+      if(!obj["longOnly"].IsNull()){
+        record.m_longOnly = obj["longOnly"].GetBool();
+      }
+      if(!obj["lotMax"].IsNull()){
+        record.m_lotMax = obj["lotMax"].GetDouble();
+      }
+      if(!obj["lotMin"].IsNull()){
+        record.m_lotMin = obj["lotMin"].GetDouble();
+      }
+      if(!obj["lotStep"].IsNull()){
+        record.m_lotStep = obj["lotStep"].GetDouble();
+      }
+      if(!obj["low"].IsNull()){
+        record.m_low = obj["low"].GetDouble();
+      }
+      if(!obj["marginHedged"].IsNull()){
+        record.m_marginHedged = obj["marginHedged"].GetInt();
+      }
+      if(!obj["marginHedgedStrong"].IsNull()){
+        record.m_marginHedgedStrong = obj["marginHedgedStrong"].GetBool();
+      }
+      if(!obj["marginMaintenance"].IsNull()){
+        record.m_marginMaintenance = obj["marginMaintenance"].GetInt();
+      }
+      if(!obj["marginMode"].IsNull()){
+        record.m_marginMode = static_cast<MARGIN_MODE>(obj["marginMode"].GetInt());
+      }
+      if(!obj["percentage"].IsNull()){
+        record.m_percentage = obj["percentage"].GetDouble();
+      }
+      if(!obj["precision"].IsNull()){
+        record.m_precision = obj["precision"].GetInt();
+      }
+      if(!obj["profitMode"].IsNull()){
+        record.m_profitMode = static_cast<PROFIT_MODE>(obj["profitMode"].GetInt());
+      }
+      if(!obj["quoteId"].IsNull()){
+        record.m_quoteId = static_cast<QUOTEID>(obj["quoteId"].GetInt());
+      }
+      if(!obj["shortSelling"].IsNull()){
+        record.m_shortSelling = obj["shortSelling"].GetBool();
+      }
+      if(!obj["spreadRaw"].IsNull()){
+        record.m_spreadRaw = obj["spreadRaw"].GetDouble();
+      }
+      if(!obj["spreadTable"].IsNull()){
+        record.m_spreadTable = obj["spreadTable"].GetDouble();
+      }
+      if(!obj["starting"].IsNull()){
+        record.m_starting = obj["starting"].GetUint64();
+      }
+      if(!obj["stepRuleId"].IsNull()){
+        record.m_stepRuleId = obj["stepRuleId"].GetInt();
+      }
+      if(!obj["stopsLevel"].IsNull()){
+        record.m_stopsLevel = obj["stopsLevel"].GetInt();
+      }
+      if(!obj["swap_rollover3days"].IsNull()){
+        record.m_swap_rollover3days = obj["swap_rollover3days"].GetInt();
+      }
+      if(!obj["swapEnable"].IsNull()){
+        record.m_swapEnable = obj["swapEnable"].GetBool();
+      }
+      if(!obj["swapLong"].IsNull()){
+        record.m_swapLong = obj["swapLong"].GetDouble();
+      }
+      if(!obj["swapShort"].IsNull()){
+        record.m_swapShort = obj["swapShort"].GetDouble();
+      }
+      if(!obj["swapType"].IsNull()){
+        record.m_swapType = obj["swapType"].GetInt();
+      }
+      if(!obj["symbol"].IsNull()){
+        record.m_symbol = obj["symbol"].GetString();
+      }
+      if(!obj["tickSize"].IsNull()){
+        record.m_tickSize = obj["tickSize"].GetDouble();
+      }
+      if(!obj["tickValue"].IsNull()){
+        record.m_tickValue = obj["tickValue"].GetDouble();
+      }
+      if(!obj["time"].IsNull()){
+        record.m_time = obj["time"].GetUint64();
+      }
+      if(!obj["timeString"].IsNull()){
+        record.m_timeString = obj["timeString"].GetString();
+      }
+      if(!obj["trailingEnabled"].IsNull()){
+        record.m_trailingEnabled = obj["trailingEnabled"].GetBool();
+      }
+      if(!obj["type"].IsNull()){
+        record.m_type = obj["type"].GetInt();
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getSymbol()");
+    }
+
+    return record;
+  }
+
+  /*!
+   * Get tick price record
+   *
+   * @param int t_level
+   * @param long long t_timestamp
+   * @param std::vector<std::string&> t_symbols
+   * @return std::vector<TickRecord>
+   */
+  std::vector<TickRecord>
+  Client::getTickPrices(int t_level, long long t_timestamp, std::vector<std::string> t_symbols) {
+    std::vector<TickRecord> tickList;
+
+    // validate
+    if(t_timestamp == 0){
+      Util::printError("Timestamp is 0!");
+      return tickList;
+    }
+
+    if(t_symbols.empty()){
+      Util::printError("Symbol list is empty!");
+      return tickList;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTickPrices(t_level, t_timestamp, t_symbols) );
+    if(Util::hasAPIResponseError( response )){
+      return tickList;
+    }
+
+    try {
+      auto obj = getReturnData( response )->GetObject();
+
+      if(!obj["quotations"].IsNull() && obj["quotations"].IsArray()){
+        for(auto& quote : obj["quotations"].GetArray()){
+          TickRecord record;
+
+          if(!quote["ask"].IsNull()){
+            record.m_ask = quote["ask"].GetDouble();
+          }
+          if(!quote["askVolume"].IsNull()){
+            record.m_askVolume = quote["askVolume"].GetInt();
+          }
+          if(!quote["bid"].IsNull()){
+            record.m_bid = quote["bid"].GetDouble();
+          }
+          if(!quote["bidVolume"].IsNull()){
+            record.m_bidVolume = quote["bidVolume"].GetInt();
+          }
+          if(!quote["high"].IsNull()){
+            record.m_high = quote["high"].GetDouble();
+          }
+          if(!quote["level"].IsNull()){
+            record.m_level = quote["level"].GetInt();
+          }
+          if(!quote["low"].IsNull()){
+            record.m_low = quote["low"].GetDouble();
+          }
+          if(!quote["spreadRaw"].IsNull()){
+            record.m_spreadRaw = quote["spreadRaw"].GetDouble();
+          }
+          if(!quote["spreadTable"].IsNull()){
+            record.m_spreadTable = quote["spreadTable"].GetDouble();
+          }
+          if(!quote["symbol"].IsNull()){
+            record.m_symbol = quote["symbol"].GetString();
+          }
+          if(!quote["timestamp"].IsNull()){
+            record.m_timestamp = quote["timestamp"].GetUint64();
+          }
+
+          tickList.push_back(record);
+        }
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getTickPrices()");
+    }
+
+    return tickList;
+  }
+
+  /*!
+   * Get trade records
+   *
+   * @param std::vector<long long> t_orders
+   * @return std::vector<TradeRecord>
+   */
+  std::vector<TradeRecord> Client::getTradeRecords(std::vector<long long> t_orders) {
+    std::vector<TradeRecord> recordList;
+
+    // validate
+    if(t_orders.empty()){
+      Util::printError("Order number list is empty!");
+      return recordList;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTradeRecords(t_orders) );
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    try {
+      for(auto& obj : getReturnData( response )->GetArray()){
+        TradeRecord record = getTradeRecordFromObj(obj);
+        recordList.push_back(record);
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getTradeRecords()");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get trades
+   *
+   * @param bool t_openedOnly
+   * @return std::vector<TradeRecord>
+   */
+  std::vector<TradeRecord> Client::getTrades(bool t_openedOnly) {
+    std::vector<TradeRecord> recordList;
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTrades(t_openedOnly) );
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    // parse
+    try {
+      for(auto& obj : getReturnData( response )->GetArray()){
+        TradeRecord record = getTradeRecordFromObj(obj);
+        recordList.push_back(record);
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getTrades()");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get trade history
+   *
+   * @param long long t_start
+   * @param long long t_end
+   * @return std::vector<TradeRecord>
+   */
+  std::vector<TradeRecord> Client::getTradeHistory(long long t_start, long long t_end) {
+    std::vector<TradeRecord> recordList;
+
+    // validate
+    if(t_start == 0){
+      Util::printError("Start time is 0!");
+      return recordList;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTradesHistory( t_start, t_end ) );
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    // parse
+    try {
+      for(auto& obj : getReturnData( response )->GetArray()){
+        TradeRecord record = getTradeRecordFromObj(obj);
+        recordList.push_back(record);
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getTradeHistory()");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get trading hours
+   *
+   * @param std::vector<std::string&> t_symbols
+   * @return std::vector<TradingHourRecord>
+   */
+  std::vector<TradingHourRecord> Client::getTradingHours(std::vector<std::string> t_symbols) {
+    std::vector<TradingHourRecord> recordList;
+
+    // validate
+    if(t_symbols.empty()){
+      Util::printError("Symbol list is empty!");
+      return recordList;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTradingHours( t_symbols ) );
+    if(Util::hasAPIResponseError( response )){
+      return recordList;
+    }
+
+    // parse
+    try {
+      for(auto& obj : getReturnData( response )->GetArray()){
+        TradingHourRecord record;
+
+        if(!obj["symbol"].IsNull()){
+          record.m_symbol = obj["symbol"].GetString();
+        }
+
+        if(obj["quotes"].IsArray()){
+          for(auto& quote : obj["quotes"].GetArray()){
+            QuoteRecord quoteRecord;
+
+            if(!quote["day"].IsNull()){
+              quoteRecord.m_day = static_cast<Weekdays>(quote["day"].GetInt());
+            }
+            if(!quote["fromT"].IsNull()){
+              quoteRecord.m_fromT = quote["fromT"].GetUint64();
+            }
+            if(!quote["toT"].IsNull()){
+              quoteRecord.m_toT = quote["toT"].GetUint64();
+            }
+
+            record.m_quotes.push_back(quoteRecord);
+          }
+        }
+
+        if(obj["trading"].IsArray()){
+          for(auto& trading : obj["trading"].GetArray()){
+            TradingRecord tradingRecord;
+
+            if(!trading["day"].IsNull()){
+              tradingRecord.m_day = static_cast<Weekdays>(trading["day"].GetInt());
+            }
+            if(!trading["fromT"].IsNull()){
+              tradingRecord.m_fromT = trading["fromT"].GetUint64();
+            }
+            if(!trading["toT"].IsNull()){
+              tradingRecord.m_toT = trading["toT"].GetUint64();
+            }
+
+            record.m_trading.push_back(tradingRecord);
+          }
+        }
+
+        recordList.push_back(record);
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getTradingHours()");
+    }
+
+    return recordList;
+  }
+
+  /*!
+   * Get api version
+   *
+   * @return std::string
+   */
+  std::string Client::getVersion() {
+    std::string version;
+
+    // request
+    std::string response = sendRequest( RequestFactory::getVersion() );
+    if(Util::hasAPIResponseError( response )){
+      return version;
+    }
+
+    // parse
+    try {
+      auto obj = getReturnData( response )->GetObject();
+      if(!obj["version"].IsNull()){
+        version = obj["version"].GetString();
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getVersion()");
+    }
+
+    return version;
+  }
+
+  /*!
+   * Send ping
+   */
+  void Client::ping() {
+    // request
+    std::string response = sendRequest( RequestFactory::getPing() );
+    if(Util::hasAPIResponseError( response )){
+      return;
+    }
+  }
+
+  /*!
+   * Get trade transaction
+   *
+   * @param TradeTransaction& t_info
+   * @return long long order id
+   */
+  long long Client::tradeTransaction(TradeTransactionInfo &t_info) {
+    long long ordernr = 0;
+
+    // validate
+    if(t_info.m_symbol.empty()){
+      Util::printError("Symbol is empty!");
+      return ordernr;
+    }
+
+    if(t_info.m_price == 0){
+      Util::printError("Price is 0!");
+      return ordernr;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTradeTransaction( t_info ) );
+
+    // parse
+    try {
+      auto obj = getReturnData( response )->GetObject();
+      if(!obj["order"].IsNull()){
+        ordernr = obj["order"].GetInt();
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::tradeTransaction()");
+    }
+
+    return ordernr;
+  }
+
+  /*!
+   * Get trade transaction status
+   *
+   * @param long long t_ordernr
+   * @return TradeTransactionStatusRecord
+   */
+  TradeTransactionStatusRecord Client::getTradeTransactionStatus(long long t_ordernr) {
+    TradeTransactionStatusRecord record;
+
+    // validate
+    if(t_ordernr == 0){
+      Util::printError("Ordernr is 0!");
+      return record;
+    }
+
+    // request
+    std::string response = sendRequest( RequestFactory::getTradeTransactionStatus( t_ordernr ) );
+
+    // parse
+    try {
+      auto obj = getReturnData( response )->GetObject();
+
+      if(!obj["ask"].IsNull()){
+        record.m_ask = obj["ask"].GetDouble();
+      }
+      if(!obj["bid"].IsNull()){
+        record.m_bid = obj["bid"].GetDouble();
+      }
+      if(!obj["customComment"].IsNull()){
+        record.m_customComment = obj["customComment"].GetString();
+      }
+      if(!obj["message"].IsNull()){
+        record.m_message = obj["message"].GetString();
+      }
+      if(!obj["order"].IsNull()){
+        record.m_order = obj["order"].GetInt();
+      }
+      if(!obj["requestStatus"].IsNull()){
+        record.m_requestStatus = static_cast<RequestStatus>(obj["requestStatus"].GetInt());
+      }
+    } catch(...){
+      Util::printError("unknown error in Client::getTradeTransactionStatus()");
+    }
+
+    return record;
+  }
+
+  /*!
+   * Get trade record from json object
+   *
+   * @param const rapidjson::GenericValue<rapidjson::UTF8<char>> &obj
+   * @return TradeRecord
+   */
+  TradeRecord Client::getTradeRecordFromObj(const rapidjson::GenericValue<rapidjson::UTF8<char>> &obj) {
+    TradeRecord record;
+
+    if(!obj["close_price"].IsNull()){
+      record.m_close_price = obj["close_price"].GetDouble();
+    }
+    if(!obj["close_time"].IsNull()){
+      record.m_close_time = obj["close_time"].GetUint64();
+    }
+    if(!obj["close_timeString"].IsNull()){
+      record.m_close_timeString = obj["close_timeString"].GetString();
+    }
+    if(!obj["closed"].IsNull()){
+      record.m_closed = obj["closed"].GetBool();
+    }
+    if(!obj["cmd"].IsNull()){
+      record.m_cmd = static_cast<TransactionCmd>(obj["cmd"].GetInt());
+    }
+    if(!obj["comment"].IsNull()){
+      record.m_comment = obj["comment"].GetString();
+    }
+    if(!obj["commission"].IsNull()){
+      record.m_commission = obj["commission"].GetDouble();
+    }
+    if(!obj["customComment"].IsNull()){
+      record.m_customComment = obj["customComment"].GetString();
+    }
+    if(!obj["digits"].IsNull()){
+      record.m_digits = obj["digits"].GetInt();
+    }
+    if(!obj["expiration"].IsNull()){
+      record.m_expiration = obj["expiration"].GetUint64();
+    }
+    if(!obj["expirationString"].IsNull()){
+      record.m_expirationString = obj["expirationString"].GetString();
+    }
+    if(!obj["margin_rate"].IsNull()){
+      record.m_margin_rate = obj["margin_rate"].GetDouble();
+    }
+    if(!obj["offset"].IsNull()){
+      record.m_offset = obj["offset"].GetInt();
+    }
+    if(!obj["open_price"].IsNull()){
+      record.m_open_price = obj["open_price"].GetDouble();
+    }
+    if(!obj["open_time"].IsNull()){
+      record.m_open_time = obj["open_time"].GetUint64();
+    }
+    if(!obj["open_timeString"].IsNull()){
+      record.m_open_timeString = obj["open_timeString"].GetString();
+    }
+    if(!obj["order"].IsNull()){
+      record.m_order = obj["order"].GetUint();
+    }
+    if(!obj["order2"].IsNull()){
+      record.m_order2 = obj["order2"].GetUint();
+    }
+    if(!obj["position"].IsNull()){
+      record.m_position = obj["position"].GetUint();
+    }
+    if(!obj["profit"].IsNull()){
+      record.m_profit = obj["profit"].GetDouble();
+    }
+    if(!obj["sl"].IsNull()){
+      record.m_sl = obj["sl"].GetDouble();
+    }
+    if(!obj["storage"].IsNull()){
+      record.m_storage = obj["storage"].GetDouble();
+    }
+    if(!obj["symbol"].IsNull()){
+      record.m_symbol = obj["symbol"].GetString();
+    }
+    if(!obj["timestamp"].IsNull()){
+      record.m_timestamp = obj["timestamp"].GetUint64();
+    }
+    if(!obj["tp"].IsNull()){
+      record.m_tp = obj["tp"].GetDouble();
+    }
+    if(!obj["volume"].IsNull()){
+      record.m_volume = obj["volume"].GetDouble();
+    }
+
+    return record;
+  }
+
+  /*!
    * Try to login and obtain a stream session id
    *
    * @param const char* t_username

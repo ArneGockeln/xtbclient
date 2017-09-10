@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct NewsRecord {
     std::string m_body;
     int m_bodylen;

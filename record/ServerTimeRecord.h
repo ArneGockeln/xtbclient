@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct ServerTimeRecord {
     uint64_t m_time;
     std::string m_timeString;

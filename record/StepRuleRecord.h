@@ -9,7 +9,7 @@
 #include <vector>
 #include "StepRecord.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct StepRuleRecord {
     int m_id;
     std::string m_name;

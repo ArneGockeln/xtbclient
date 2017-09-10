@@ -8,7 +8,7 @@
 #include <string>
 #include "../enums/RequestStatus.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct TradeTransactionStatusRecord{
     double m_ask;
     double m_bid;

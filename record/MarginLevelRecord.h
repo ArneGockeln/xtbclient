@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xtblib {
+namespace xtbclient {
   struct MarginLevelRecord {
     double m_balance;
     double m_credit;

@@ -9,7 +9,7 @@
 #include "../enums/TransactionCmd.h"
 #include "../enums/TransactionType.h"
 
-namespace xtblib {
+namespace xtbclient {
   struct TradeTransactionInfo {
     TransactionCmd m_cmd;
     std::string m_customComment;
