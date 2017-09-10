@@ -54,6 +54,9 @@ namespace xtbclient {
     int ssl_read(SSL* t_ssl, void* t_buffer, int t_buffer_size);
     bool is_response_end(std::string t_buffer);
     void cleanResponse(std::string& t_response);
+    Value* getReturnData(std::string t_json);
+    Document getDocumentFromJson(std::string t_jsonString);
+    std::string parseStreamSessionId(std::string t_jsonString);
 
   public:
     Client(ClientType t_clientType);
@@ -62,16 +65,16 @@ namespace xtbclient {
     bool sendLogin(const char* t_username, const char* t_password);
     std::string sendRequest(std::string t_json);
     std::string getResponse();
+    void setStreamListener(StreamListener* t_streamListener);
+    std::string* getStreamSessionId();
+    void setStreamSessionId(std::string* t_streamSessionId);
 
     /*!
      * Requests
      */
+
     ChartLastRequest getChartLastRequest(ChartLastInfoRecord& t_record);
 
-
-    void setStreamListener(StreamListener* t_streamListener);
-    std::string* getStreamSessionId();
-    void setStreamSessionId(std::string* t_streamSessionId);
 
     /*!
      * Subscriptions

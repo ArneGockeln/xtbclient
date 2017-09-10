@@ -4,7 +4,6 @@
 
 #include "Client.h"
 #include "RequestFactory.h"
-#include "ResponseFactory.h"
 #include <iostream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -368,6 +367,7 @@ namespace xtbclient {
 
     ChartLastRequest chartLastRequest;
 
+    // Request validation
     if(t_record.m_start == 0){
       Util::printError("ChartLastInfoRecord.m_start is 0!");
       return chartLastRequest;
@@ -378,9 +378,55 @@ namespace xtbclient {
       return chartLastRequest;
     }
 
-    std::string request = sendRequest( RequestFactory::getChartLastRequest( t_record ) );
-    Util::debug(request);
-    return ResponseFactory::getChartLastRequest(request);
+    // Request
+    std::string response = sendRequest( RequestFactory::getChartLastRequest( t_record ) );
+
+    // Response
+    if(Util::hasAPIResponseError( response )){
+      return chartLastRequest;
+    }
+
+    try {
+      auto returnData = getReturnData( std::move( response ) )->GetObject();
+
+      if(!returnData["digits"].IsNull()){
+        chartLastRequest.setDigits( returnData["digits"].GetInt() );
+      }
+
+      if(!returnData["rateInfos"].IsNull() && returnData["rateInfos"].IsArray()){
+        for(auto& rateInfo : returnData["rateInfos"].GetArray()){
+          RateInfoRecord rateInfoRecord;
+
+          if(!rateInfo["close"].IsNull()){
+            rateInfoRecord.m_close = rateInfo["close"].GetDouble();
+          }
+          if(!rateInfo["ctm"].IsNull()){
+            rateInfoRecord.m_ctm = rateInfo["ctm"].GetUint64();
+          }
+          if(!rateInfo["ctmString"].IsNull()){
+            rateInfoRecord.m_ctmString = rateInfo["ctmString"].GetString();
+          }
+          if(!rateInfo["high"].IsNull()){
+            rateInfoRecord.m_high = rateInfo["high"].GetDouble();
+          }
+          if(!rateInfo["low"].IsNull()){
+            rateInfoRecord.m_low = rateInfo["low"].GetDouble();
+          }
+          if(!rateInfo["open"].IsNull()){
+            rateInfoRecord.m_open = rateInfo["open"].GetDouble();
+          }
+          if(!rateInfo["vol"].IsNull()){
+            rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
+          }
+
+          chartLastRequest.getRateInfos().push_back(rateInfoRecord);
+        }
+      }
+    } catch(...){
+      fprintf(stderr, "unknown error in Client::getChartLastRequest\n");
+    }
+
+    return chartLastRequest;
   }
 
   /*!
@@ -393,7 +439,7 @@ namespace xtbclient {
   bool Client::sendLogin(const char *t_username, const char *t_password) {
     std::string login_response = sendRequest( RequestFactory::getLogin( t_username, t_password, nullptr, nullptr ) );
     // get session id
-    std::string sessionId = ResponseFactory::getStreamSessionId( login_response );
+    std::string sessionId = parseStreamSessionId( login_response );
 
     if(!sessionId.empty()){
       // set session id
@@ -677,6 +723,78 @@ namespace xtbclient {
       // leave fork
       exit(EXIT_SUCCESS);
     }
+  }
+
+  /*!
+   * Get stream session id from json string
+   *
+   * @param std::string t_jsonString
+   * @return std::string
+   */
+  std::string Client::parseStreamSessionId(std::string t_jsonString) {
+    Document document = getDocumentFromJson(std::move(t_jsonString));
+
+    std::string sessionId;
+
+    if(document.HasParseError()){
+      return sessionId;
+    }
+
+    if(!document["status"].IsNull()){
+      if(document["status"].GetBool()){
+        sessionId = static_cast<std::string>(document["streamSessionId"].GetString());
+      }
+    }
+
+    return sessionId;
+  }
+
+  /*!
+   * Parse json to rapidjson document
+   *
+   * @param std::string t_jsonString
+   * @return rapidjson::Document
+   */
+  Document Client::getDocumentFromJson(std::string t_jsonString){
+
+    Document document;
+    document.Parse<rapidjson::kParseStopWhenDoneFlag>(t_jsonString.c_str());
+
+    if(Util::hasDocumentParseError(&document)){
+      fprintf(stderr, "CorruptJsonString: %s\n", t_jsonString.c_str());
+    }
+
+    return document;
+  }
+
+  /*!
+   * Get returnData from json string
+   *
+   * @param std::string t_json
+   * @return rapidjson::Value*
+   */
+  Value* Client::getReturnData(std::string t_json) {
+    Document document = getDocumentFromJson(std::move(t_json));
+    Value* value = nullptr;
+
+    if(document.HasParseError()){
+      return value;
+    }
+
+    // has error?
+    if(document.HasMember("errorCode")){
+      fprintf(stderr, "API Error %s: %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
+    } else if(!document.HasMember("returnData") || !document.HasMember("status")){
+      fprintf(stderr, "No returnData found.\n");
+    } else if(!document["status"].IsNull()) {
+      if (document["status"].GetBool()) {
+        if(!document["returnData"].IsNull()){
+          value = &document["returnData"];
+        }
+      }
+    }
+
+    return value;
   }
 
   /*!
