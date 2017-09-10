@@ -20,7 +20,7 @@ I followed the style guide of [C++ Best Practice](https://github.com/lefticus/cp
 # Examples
 
 ### Login
-```
+```C++
 using namespace xtbclient;
 using namespace std;
 
