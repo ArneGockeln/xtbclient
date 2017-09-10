@@ -4,6 +4,7 @@
 
 #include "Client.h"
 #include "RequestFactory.h"
+#include "record/StreamNewsRecord.h"
 #include <iostream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -1956,8 +1957,41 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeBalance(m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onBalance(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      // parse
+      try {
+        StreamBalanceRecord balanceRecord{0,0,0,0,0,0};
+
+        auto returnData = getStreamData( "balance", response )->GetObject();
+
+        if(!returnData["balance"].IsNull()){
+          balanceRecord.m_balance = returnData["balance"].GetDouble();
+        }
+        if(!returnData["credit"].IsNull()){
+          balanceRecord.m_credit = returnData["credit"].GetDouble();
+        }
+        if(!returnData["equity"].IsNull()){
+          balanceRecord.m_equity = returnData["equity"].GetDouble();
+        }
+        if(!returnData["margin"].IsNull()){
+          balanceRecord.m_margin = returnData["margin"].GetDouble();
+        }
+        if(!returnData["marginFree"].IsNull()){
+          balanceRecord.m_marginFree = returnData["marginFree"].GetDouble();
+        }
+        if(!returnData["marginLevel"].IsNull()){
+          balanceRecord.m_marginLevel = returnData["marginLevel"].GetDouble();
+        }
+
+        s->onBalance(balanceRecord);
+      } catch(...){
+        Util::printError("unknown error fork->onBalance()");
+      }
     });
   }
 
@@ -1965,7 +1999,7 @@ namespace xtbclient {
    * Stop balance subscription
    */
   void Client::stopBalance() {
-    sendRequest(RequestFactory::stopBalance());
+    sendRequest( RequestFactory::stopBalance() );
   }
 
   /*!
@@ -1977,8 +2011,49 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeCandles(&t_symbol, m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onCandles(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+        StreamCandleRecord candleRecord;
+
+        auto returnData = getStreamData("candle", response )->GetObject();
+
+        if(!returnData["close"].IsNull()){
+          candleRecord.m_close = returnData["close"].GetDouble();
+        }
+        if(!returnData["ctm"].IsNull()){
+          candleRecord.m_ctm = returnData["ctm"].GetInt();
+        }
+        if(!returnData["ctmString"].IsNull()){
+          candleRecord.m_ctmString = returnData["ctmString"].GetString();
+        }
+        if(!returnData["high"].IsNull()){
+          candleRecord.m_high = returnData["high"].GetDouble();
+        }
+        if(!returnData["low"].IsNull()){
+          candleRecord.m_low = returnData["low"].GetDouble();
+        }
+        if(!returnData["open"].IsNull()){
+          candleRecord.m_open = returnData["open"].GetDouble();
+        }
+        if(!returnData["quoteid"].IsNull()){
+          candleRecord.m_quoteid = static_cast<QUOTEID >(returnData["quoteid"].GetInt());
+        }
+        if(!returnData["symbol"].IsNull()){
+          candleRecord.m_symbol = returnData["symbol"].GetString();
+        }
+        if(!returnData["vol"].IsNull()){
+          candleRecord.m_vol = returnData["vol"].GetDouble();
+        }
+
+        s->onCandle(candleRecord);
+      } catch(...){
+        Util::printError("unknown error fork->onCandle()");
+      }
     });
   }
 
@@ -1997,8 +2072,22 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeKeepAlive(m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onKeepAlive(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+        auto returnData = getStreamData("keepAlive", response)->GetObject();
+
+        if(!returnData["timestamp"].IsNull()){
+          s->onKeepAlive(returnData["timestamp"].GetInt());
+        }
+
+      } catch(...){
+        Util::printError("unknown error fork->onKeepAlive()");
+      }
     });
   }
 
@@ -2016,8 +2105,34 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeNews(m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onNews(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+        auto returnData = getStreamData("news", response)->GetObject();
+
+        StreamNewsRecord newsRecord{"","",0,""};
+
+        if(!returnData["body"].IsNull()){
+          newsRecord.m_body = returnData["body"].GetString();
+        }
+        if(!returnData["key"].IsNull()){
+          newsRecord.m_key = returnData["key"].GetString();
+        }
+        if(!returnData["time"].IsNull()){
+          newsRecord.m_time = returnData["time"].GetInt();
+        }
+        if(!returnData["title"].IsNull()){
+          newsRecord.m_title = returnData["title"].GetString();
+        }
+
+        s->onNews(newsRecord);
+      } catch(...){
+        Util::printError("unknown error fork->onNews()");
+      }
     });
   }
 
@@ -2035,8 +2150,34 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeProfits(m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onProfits(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+
+        auto returnData = getStreamData("profit", response)->GetObject();
+        StreamProfitRecord profitRecord{0,0,0,0};
+
+        if(!returnData["order"].IsNull()){
+          profitRecord.m_order = returnData["order"].GetInt();
+        }
+        if(!returnData["order2"].IsNull()){
+          profitRecord.m_order2 = returnData["order2"].GetInt();
+        }
+        if(!returnData["position"].IsNull()){
+          profitRecord.m_position = returnData["position"].GetInt();
+        }
+        if(!returnData["profit"].IsNull()){
+          profitRecord.m_profit = returnData["profit"].GetDouble();
+        }
+
+        s->onProfits(profitRecord);
+      } catch(...){
+        Util::printError("unknown error fork->onProfits()");
+      }
     });
   }
 
@@ -2058,8 +2199,58 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeTickPrices(&t_symbol, t_minArrivalTime, t_maxLevel, m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onTickPrices(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+        StreamTickRecord tickRecord{0,0,0,0,0,0,0,QUOTEID::QD_FLOAT,0,0,"",0};
+
+        auto streamData = getStreamData("tickPrices", response)->GetObject();
+
+        if(!streamData["ask"].IsNull()){
+          tickRecord.m_ask = streamData["ask"].GetDouble();
+        }
+        if(!streamData["askVolume"].IsNull()){
+          tickRecord.m_askVolume = streamData["askVolume"].GetInt();
+        }
+        if(!streamData["bid"].IsNull()){
+          tickRecord.m_bid = streamData["bid"].GetDouble();
+        }
+        if(!streamData["bidVolume"].IsNull()){
+          tickRecord.m_bidVolume = streamData["bidVolume"].GetInt();
+        }
+        if(!streamData["high"].IsNull()){
+          tickRecord.m_high = streamData["high"].GetDouble();
+        }
+        if(!streamData["level"].IsNull()){
+          tickRecord.m_level = streamData["level"].GetInt();
+        }
+        if(!streamData["low"].IsNull()){
+          tickRecord.m_low = streamData["low"].GetDouble();
+        }
+        if(!streamData["quoteid"].IsNull()){
+          tickRecord.m_quoteid = static_cast<QUOTEID>(streamData["quoteid"].GetInt());
+        }
+        if(!streamData["spreadRaw"].IsNull()){
+          tickRecord.m_spreadRaw = streamData["spreadRaw"].GetDouble();
+        }
+        if(!streamData["spreadTable"].IsNull()){
+          tickRecord.m_spreadTable = streamData["spreadTable"].GetDouble();
+        }
+        if(!streamData["symbol"].IsNull()){
+          tickRecord.m_symbol = streamData["symbol"].GetString();
+        }
+        if(!streamData["timestamp"].IsNull()){
+          tickRecord.m_timestamp = streamData["timestamp"].GetUint64();
+        }
+
+        s->onTickPrices(tickRecord);
+      } catch(...){
+        Util::printError("unknown error fork->onTickPrices()");
+      }
     });
   }
 
@@ -2079,8 +2270,96 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeTrades(m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onTrades(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+
+        auto obj = getStreamData("trade", response)->GetObject();
+
+        StreamTradeRecord record{0};
+
+        if(!obj["close_price"].IsNull()){
+          record.m_close_price = obj["close_price"].GetDouble();
+        }
+        if(!obj["close_time"].IsNull()){
+          record.m_close_time = obj["close_time"].GetUint64();
+        }
+        if(!obj["closed"].IsNull()){
+          record.m_closed = obj["closed"].GetBool();
+        }
+        if(!obj["cmd"].IsNull()){
+          record.m_cmd = static_cast<TransactionCmd>(obj["cmd"].GetInt());
+        }
+        if(!obj["comment"].IsNull()){
+          record.m_comment = obj["comment"].GetString();
+        }
+        if(!obj["commission"].IsNull()){
+          record.m_commission = obj["commission"].GetDouble();
+        }
+        if(!obj["customComment"].IsNull()){
+          record.m_customComment = obj["customComment"].GetString();
+        }
+        if(!obj["digits"].IsNull()){
+          record.m_digits = obj["digits"].GetInt();
+        }
+        if(!obj["expiration"].IsNull()){
+          record.m_expiration = obj["expiration"].GetUint64();
+        }
+        if(!obj["margin_rate"].IsNull()){
+          record.m_margin_rate = obj["margin_rate"].GetDouble();
+        }
+        if(!obj["offset"].IsNull()){
+          record.m_offset = obj["offset"].GetInt();
+        }
+        if(!obj["open_price"].IsNull()){
+          record.m_open_price = obj["open_price"].GetDouble();
+        }
+        if(!obj["open_time"].IsNull()){
+          record.m_open_time = obj["open_time"].GetUint64();
+        }
+        if(!obj["order"].IsNull()){
+          record.m_order = obj["order"].GetUint();
+        }
+        if(!obj["order2"].IsNull()){
+          record.m_order2 = obj["order2"].GetUint();
+        }
+        if(!obj["position"].IsNull()){
+          record.m_position = obj["position"].GetUint();
+        }
+        if(!obj["profit"].IsNull()){
+          record.m_profit = obj["profit"].GetDouble();
+        }
+        if(!obj["sl"].IsNull()){
+          record.m_sl = obj["sl"].GetDouble();
+        }
+        if(!obj["state"].IsNull()){
+          record.m_state = obj["state"].GetString();
+        }
+        if(!obj["storage"].IsNull()){
+          record.m_storage = obj["storage"].GetDouble();
+        }
+        if(!obj["symbol"].IsNull()){
+          record.m_symbol = obj["symbol"].GetString();
+        }
+        if(!obj["tp"].IsNull()){
+          record.m_tp = obj["tp"].GetDouble();
+        }
+        if(!obj["type"].IsNull()){
+          record.m_type = static_cast<TransactionType>(obj["type"].GetInt());
+        }
+        if(!obj["volume"].IsNull()){
+          record.m_volume = obj["volume"].GetDouble();
+        }
+
+        s->onTrades(record);
+
+      } catch(...){
+        Util::printError("unknown error fork->onTrades()");
+      }
     });
   }
 
@@ -2098,8 +2377,36 @@ namespace xtbclient {
     sendRequest(RequestFactory::subscribeTradeStatus(m_streamSessionId));
 
     StreamListener *s = m_streamlistner;
-    startFork([s](std::string response){
-      s->onTradeStatus(response);
+    startFork([this, s](std::string response){
+
+      if(Util::hasAPIResponseError( response )){
+        return;
+      }
+
+      try {
+        auto streamData = getStreamData("tradeStatus", response)->GetObject();
+        StreamTradeStatusRecord statusRecord{"","",0,0,RequestStatus::RS_PENDING};
+
+        if(!streamData["customComment"].IsNull()){
+          statusRecord.m_customComment = streamData["customComment"].GetString();
+        }
+        if(!streamData["message"].IsNull()){
+          statusRecord.m_message = streamData["message"].GetString();
+        }
+        if(!streamData["order"].IsNull()){
+          statusRecord.m_order = streamData["order"].GetInt();
+        }
+        if(!streamData["price"].IsNull()){
+          statusRecord.m_price = streamData["price"].GetDouble();
+        }
+        if(!streamData["requestStatus"].IsNull()){
+          statusRecord.m_requestStatus = static_cast<RequestStatus>(streamData["requestStatus"].GetInt());
+        }
+
+        s->onTradeStatus(statusRecord);
+      } catch(...){
+        Util::printError("unknown error fork->onTradeStatus()");
+      }
     });
   }
 
@@ -2195,7 +2502,8 @@ namespace xtbclient {
     Document document = getDocumentFromJson(std::move(t_json));
     Value* value = nullptr;
 
-    if(document.HasParseError()){
+    // check rapidjson parser
+    if(Util::hasDocumentParseError(&document)){
       return value;
     }
 
@@ -2208,6 +2516,36 @@ namespace xtbclient {
       if (document["status"].GetBool()) {
         if(!document["returnData"].IsNull()){
           value = &document["returnData"];
+        }
+      }
+    }
+
+    return value;
+  }
+
+  /*!
+   * Obtain data from stream subscription
+   *
+   * @param const char* t_command
+   * @param std::string t_json
+   * @return rapidjson::Value*
+   */
+  Value *Client::getStreamData(const char* t_command, std::string t_json) {
+    Document document = getDocumentFromJson(std::move(t_json));
+    Value* value = nullptr;
+
+    // check rapidjson parser
+    if(Util::hasDocumentParseError(&document)){
+      return value;
+    }
+
+    // has error?
+    if(document.HasMember("errorCode")){
+      fprintf(stderr, "API Error %s: %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
+    } else {
+      if(document.HasMember("command")){
+        if(document["command"].GetString() == t_command){
+          value = &document["data"];
         }
       }
     }

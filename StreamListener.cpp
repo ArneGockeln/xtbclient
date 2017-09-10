@@ -5,35 +5,35 @@
 #include "StreamListener.h"
 
 namespace xtbclient {
-  void StreamListener::onBalance(std::string response) {
+  void StreamListener::onBalance(StreamBalanceRecord balanceRecord) {
     printf("onBalance is not implemented yet.");
   }
 
-  void StreamListener::onCandles(std::string response) {
+  void StreamListener::onCandle(StreamCandleRecord candleRecord) {
     printf("onCandles is not implemented yet.");
   }
 
-  void StreamListener::onKeepAlive(std::string response) {
+  void StreamListener::onKeepAlive(long long timestamp) {
     printf("onKeepAlive is not implemented yet.");
   }
 
-  void StreamListener::onNews(std::string response) {
+  void StreamListener::onNews(StreamNewsRecord newsRecord) {
     printf("onNews is not implemented yet.");
   }
 
-  void StreamListener::onProfits(std::string response) {
+  void StreamListener::onProfits(StreamProfitRecord profitRecord) {
     printf("onProfits is not implemented yet.");
   }
 
-  void StreamListener::onTickPrices(std::string response) {
+  void StreamListener::onTickPrices(StreamTickRecord tickRecord) {
     printf("onTickPrices is not implemented yet.");
   }
 
-  void StreamListener::onTrades(std::string response) {
+  void StreamListener::onTrades(StreamTradeRecord tradeRecord) {
     printf("onTrades is not implemented yet.");
   }
 
-  void StreamListener::onTradeStatus(std::string response) {
+  void StreamListener::onTradeStatus(StreamTradeStatusRecord tradeStatusRecord) {
     printf("onTradeStatus is not implemented yet.");
   }
 };

@@ -12,7 +12,7 @@
 #include <mutex>
 #include "StreamListener.h"
 #include "Util.h"
-#include "endpoints/ChartLastRequest.h"
+#include "ChartLastRequest.h"
 #include "record/ChartLastInfoRecord.h"
 #include "record/SymbolRecord.h"
 #include "record/CalendarRecord.h"
@@ -71,6 +71,7 @@ namespace xtbclient {
     bool is_response_end(std::string t_buffer);
     void cleanResponse(std::string& t_response);
     Value* getReturnData(std::string t_json);
+    Value* getStreamData(const char* t_command, std::string t_json);
     Document getDocumentFromJson(std::string t_jsonString);
     std::string parseStreamSessionId(std::string t_jsonString);
 

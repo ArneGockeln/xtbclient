@@ -7,7 +7,7 @@
 
 
 #include <vector>
-#include "../record/RateInfoRecord.h"
+#include "record/RateInfoRecord.h"
 
 namespace xtbclient {
   class ChartLastRequest {

@@ -21,11 +21,17 @@ I followed the style guide of [C++ Best Practice](https://github.com/lefticus/cp
 
 ### Login
 ```
+using namespace xtbclient;
+using namespace std;
+
 // set up client
 Client client(ClientType::DEMO);
 // try to login
-if( client.sendLogin("10091849", "super_awesome_password") ) {
+if( client.sendLogin("account_id", "super_awesome_password") ) {
   // send request for user data
-  std::string userdata = client.sendRequest( RequestFactory::getCurrentUserData() );
+  UserDataRecord userDataRecord = client.getCurrentUserData();
+  cout << "Currency: " << userDataRecord.m_currency << endl;
 } // - if client.sendLogin end
 ```
+
+More examples will follow.
