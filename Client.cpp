@@ -297,7 +297,7 @@ namespace xtbclient {
       memset(buf, '\0', sizeof(buf));
       int bytes;
       // first read, if record block termination found, return response
-      bytes = SSL_read(ssl, buf, sizeof(buf));
+      bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
       switch(SSL_get_error(ssl, bytes)){
         case SSL_ERROR_NONE:
           response.append(buf, strlen(buf));
@@ -317,6 +317,10 @@ namespace xtbclient {
             return response;
           }
           break;
+        case SSL_ERROR_WANT_READ:
+        case SSL_ERROR_WANT_WRITE:
+
+          break;
       }
 
       // no response end found, read on ..
@@ -324,7 +328,7 @@ namespace xtbclient {
       while( bLooping ){
 
         memset(buf, '\0', sizeof(buf));
-        bytes = SSL_read(ssl, buf, sizeof(buf));
+        bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
 
         switch(SSL_get_error(ssl, bytes)){
           case SSL_ERROR_NONE:
@@ -338,6 +342,10 @@ namespace xtbclient {
             if( is_response_end( response ) ){
               bLooping = false;
             }
+            break;
+          case SSL_ERROR_WANT_READ:
+          case SSL_ERROR_WANT_WRITE:
+
             break;
         } // - switch end
       } // - while end
