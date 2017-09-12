@@ -36,6 +36,8 @@ namespace xtbclient {
     static char* trim(char *s);
 
     static long long int getUTCinMilliseconds(int day, unsigned int month, int year, int hour, int minute, int second);
+
+    static std::vector<std::string> explode(std::string const& s, char dlim);
   };
 }
 

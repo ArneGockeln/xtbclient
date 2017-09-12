@@ -18,7 +18,7 @@
 namespace xtbclient {
   class RequestFactory {
   private:
-    static std::string startCommand(const char* t_command, std::string* t_streamSessionId);
+    static std::string startCommand(const char* t_command, const char* t_streamSessionId);
     static std::string noArgumentCommand(const char* t_command);
     static std::string getStringify(rapidjson::Document*);
 
@@ -50,21 +50,21 @@ namespace xtbclient {
     static std::string getTradeTransactionStatus(long long t_order);
 
     // subscription commands
-    static std::string subscribeBalance(std::string *t_streamSessionId);
+    static std::string subscribeBalance(const char* t_streamSessionId);
     static std::string stopBalance();
-    static std::string subscribeCandles(std::string* t_symbol, std::string* t_streamSessionId);
+    static std::string subscribeCandles(std::string* t_symbol, const char* t_streamSessionId);
     static std::string stopCandles(std::string* t_symbol);
-    static std::string subscribeKeepAlive(std::string* t_streamSessionId);
+    static std::string subscribeKeepAlive(const char* t_streamSessionId);
     static std::string stopKeepAlive();
-    static std::string subscribeNews(std::string* t_streamSessionId);
+    static std::string subscribeNews(const char* t_streamSessionId);
     static std::string stopNews();
-    static std::string subscribeProfits(std::string* t_streamSessionId);
+    static std::string subscribeProfits(const char* t_streamSessionId);
     static std::string stopProfits();
-    static std::string subscribeTickPrices(std::string* t_symbol, int t_minArrivalTime = 0, int t_maxLevel = -1, std::string* t_streamSessionId = nullptr);
+    static std::string subscribeTickPrices(std::string* t_symbol, int t_minArrivalTime = 0, int t_maxLevel = -1, const char* t_streamSessionId = nullptr);
     static std::string stopTickPrices(std::string* t_symbol);
-    static std::string subscribeTrades(std::string* t_streamSessionId);
+    static std::string subscribeTrades(const char* t_streamSessionId);
     static std::string stopTrades();
-    static std::string subscribeTradeStatus(std::string* t_streamSessionId);
+    static std::string subscribeTradeStatus(const char* t_streamSessionId);
     static std::string stopTradeStatus();
   };
 }

@@ -5,6 +5,7 @@
 #ifndef XTBCLIENT_CLIENT_H
 #define XTBCLIENT_CLIENT_H
 
+#include <rapidjson/error/en.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <string>
@@ -52,7 +53,7 @@ namespace xtbclient {
     // pointer to stream ssl socket for subscriptions
     SSL* m_ssl_stream = nullptr;
     // store stream session id for requests
-    std::string* m_streamSessionId;
+    std::string m_streamSessionId;
     // store callback for single requests
     std::function<void(SSL*)> m_callback;
     // stream listener
@@ -65,15 +66,21 @@ namespace xtbclient {
     SSL* getSSL();
     void setSSL(SSL* t_ssl);
     void setClientType(ClientType t_clientType);
-    void startFork(std::function<void(std::string)> t_callback);
     void ssl_write(SSL* t_ssl, const char* t_data, const int t_data_len);
-    int ssl_read(SSL* t_ssl, void* t_buffer, int t_buffer_size);
-    bool is_response_end(std::string t_buffer);
+    bool isResponseEnd(std::string t_buffer);
     void cleanResponse(std::string& t_response);
     Value* getReturnData(std::string t_json);
-    Value* getStreamData(const char* t_command, std::string t_json);
     Document getDocumentFromJson(std::string t_jsonString);
-    std::string parseStreamSessionId(std::string t_jsonString);
+    const char* parseStreamSessionId(std::string t_jsonString);
+    void listenOnStream();
+    void parseBalance(Value*);
+    void parseTickPrices(Value*);
+    void parseCandles(Value*);
+    void parseKeepAlive(Value*);
+    void parseNews(Value*);
+    void parseProfits(Value*);
+    void parseTrades(Value*);
+    void parseTradeStatus(Value*);
 
   public:
     Client(ClientType t_clientType);
@@ -83,8 +90,8 @@ namespace xtbclient {
     std::string sendRequest(std::string t_json);
     std::string getResponse();
     void setStreamListener(StreamListener* t_streamListener);
-    std::string* getStreamSessionId();
-    void setStreamSessionId(std::string* t_streamSessionId);
+    const char* getStreamSessionId();
+    void setStreamSessionId(const char* t_streamSessionId);
 
     /*!
      * Requests
@@ -127,7 +134,7 @@ namespace xtbclient {
     void stopNews();
     void subscribeProfits();
     void stopProfits();
-    void subscribeTickPrices(std::string t_symbol, int t_minArrivalTime = 0, int t_maxLevel = -1);
+    void subscribeTickPrices(std::string t_symbol, int t_minArrivalTime = -1, int t_maxLevel = -1);
     void stopTickPrices(std::string t_symbol);
     void subscribeTrades();
     void stopTrades();

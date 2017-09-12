@@ -397,10 +397,10 @@ namespace xtbclient {
   /*!
    * Get request for balance subscription
    *
-   * @param std::string* t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeBalance(std::string *t_streamSessionId) {
+  std::string RequestFactory::subscribeBalance(const char* t_streamSessionId) {
     return startCommand("getBalance", t_streamSessionId);
   }
 
@@ -417,13 +417,13 @@ namespace xtbclient {
    * Get request for candles subscription
    *
    * @param std::string* t_symbol
-   * @return std::string
+   * @return const char* t_streamSessionId
    */
-  std::string RequestFactory::subscribeCandles(std::string* t_symbol, std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeCandles(std::string* t_symbol, const char* t_streamSessionId) {
     Document document;
 
     SetValueByPointer(document, "/command", "getCandles");
-    SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId->data()));
+    SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId));
     SetValueByPointer(document, "/symbol", StringRef(t_symbol->data()));
 
     return getStringify(&document);
@@ -447,10 +447,10 @@ namespace xtbclient {
   /*!
    * Get request for keep alive
    *
-   * @param std::string* t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeKeepAlive(std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeKeepAlive(const char* t_streamSessionId) {
     return startCommand("getKeepAlive", t_streamSessionId);
   }
 
@@ -466,10 +466,10 @@ namespace xtbclient {
   /*!
    * Get request for news subscription
    *
-   * @param std::string* t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeNews(std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeNews(const char* t_streamSessionId) {
     return startCommand("getNews", t_streamSessionId);
   }
 
@@ -485,10 +485,10 @@ namespace xtbclient {
   /*!
    * Get request for profits subscription
    *
-   * @param std::string t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeProfits(std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeProfits(const char* t_streamSessionId) {
     return startCommand("getProfits", t_streamSessionId);
   }
 
@@ -508,17 +508,24 @@ namespace xtbclient {
    * @param std::string* t_symbol
    * @param int t_minArrivalTime
    * @param int t_maxLevel
-   * @param std::string* t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeTickPrices(std::string* t_symbol, int t_minArrivalTime, int t_maxLevel, std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeTickPrices(std::string* t_symbol, int t_minArrivalTime, int t_maxLevel, const char* t_streamSessionId) {
     Document document;
 
-    SetValueByPointer(document, "/command", "getTickPrices");
-    SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId->data()));
-    SetValueByPointer(document, "/symbol", StringRef(t_symbol->data()));
-    SetValueByPointer(document, "/minArrivalTime", t_minArrivalTime);
-    SetValueByPointer(document, "/maxLevel", t_maxLevel);
+    Value::AllocatorType& a = document.GetAllocator();
+    SetValueByPointer(document, "/command", "getTickPrices", a);
+    SetValueByPointer(document, "/streamSessionId", t_streamSessionId, a);
+    SetValueByPointer(document, "/symbol", StringRef(t_symbol->c_str()), a);
+
+    if( t_minArrivalTime > -1 ){
+      SetValueByPointer(document, "/minArrivalTime", t_minArrivalTime, a);
+    }
+
+    if( t_maxLevel > -1 ){
+      SetValueByPointer(document, "/maxLevel", t_maxLevel, a);
+    }
 
     return getStringify(&document);
   }
@@ -541,10 +548,10 @@ namespace xtbclient {
   /*!
    * Get request for trades subscription
    *
-   * @param std::string t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeTrades(std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeTrades(const char* t_streamSessionId) {
     return startCommand("getTrades", t_streamSessionId);
   }
 
@@ -560,10 +567,10 @@ namespace xtbclient {
   /*!
    * Get request for trade status subscription
    *
-   * @param std::string t_streamSessionId
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::subscribeTradeStatus(std::string* t_streamSessionId) {
+  std::string RequestFactory::subscribeTradeStatus(const char* t_streamSessionId) {
     return startCommand("getTradeStatus", t_streamSessionId);
   }
 
@@ -580,13 +587,14 @@ namespace xtbclient {
    * Get start command for subscriptions
    *
    * @param std::string t_command
+   * @param const char* t_streamSessionId
    * @return std::string
    */
-  std::string RequestFactory::startCommand(const char* t_command, std::string* t_streamSessionId){
+  std::string RequestFactory::startCommand(const char* t_command, const char* t_streamSessionId){
     Document document;
 
     SetValueByPointer(document, "/command", StringRef(t_command));
-    SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId->data()));
+    SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId));
 
     return getStringify(&document);
   }

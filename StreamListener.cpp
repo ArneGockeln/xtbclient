@@ -36,4 +36,8 @@ namespace xtbclient {
   void StreamListener::onTradeStatus(StreamTradeStatusRecord tradeStatusRecord) {
     printf("onTradeStatus is not implemented yet.");
   }
+
+  void StreamListener::onDebugMsg(std::string msg) {
+    printf("StreamListener Debug: %s\n", msg.c_str());
+  }
 };

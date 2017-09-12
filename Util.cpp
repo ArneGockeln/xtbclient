@@ -7,6 +7,7 @@
 #include <rapidjson/error/en.h>
 #include "date/date.h"
 #include <chrono>
+#include <vector>
 
 using namespace rapidjson;
 using namespace date;
@@ -159,5 +160,23 @@ namespace xtbclient {
     auto ms = duration_cast<milliseconds>(tp.time_since_epoch());
 
     return ms.count();
+  }
+
+  /*!
+   * Implementation of phps explode(string, delimiter)
+   *
+   * @param std::string const& s
+   * @param char dlim
+   * @return std::vector<std::string>
+   */
+  std::vector<std::string> Util::explode(std::string const &s, char dlim) {
+    std::vector<std::string> result;
+    std::istringstream iss(s);
+
+    for(std::string token; std::getline(iss, token, dlim); ){
+      result.push_back(std::move(token));
+    }
+
+    return result;
   }
 }

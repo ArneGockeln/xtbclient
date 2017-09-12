@@ -26,6 +26,7 @@ namespace xtbclient {
     virtual void onTickPrices(StreamTickRecord tickRecord);
     virtual void onTrades(StreamTradeRecord tradeRecord);
     virtual void onTradeStatus(StreamTradeStatusRecord statusRecord);
+    virtual void onDebugMsg(std::string msg);
   };
 }
 
