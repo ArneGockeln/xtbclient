@@ -84,8 +84,6 @@ namespace xtbclient {
 
     bcopy(he->h_addr_list[0], &server_address.sin_addr, he->h_length);
 
-//    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-
     socklen_t server_address_len = sizeof(server_address);
 
     if((server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0){
@@ -1818,7 +1816,7 @@ namespace xtbclient {
    * @param const char* t_password
    * @return bool
    */
-  bool Client::sendLogin(const char *t_username, const char *t_password) {
+  bool Client::login(const char *t_username, const char *t_password) {
     std::string login_response = sendRequest( RequestFactory::getLogin( t_username, t_password, nullptr, nullptr ) );
 
     if( Util::hasAPIResponseError( login_response )){
@@ -1831,6 +1829,8 @@ namespace xtbclient {
     if(strlen(sessionId) > 0){
       // set session id
       setStreamSessionId( sessionId );
+      // message
+      fprintf(stdout, "Logged in.\n");
       return true;
     }
 
@@ -1995,7 +1995,7 @@ namespace xtbclient {
         candleRecord.m_close = returnData["close"].GetDouble();
       }
       if(!returnData["ctm"].IsNull()){
-        candleRecord.m_ctm = returnData["ctm"].GetInt();
+        candleRecord.m_ctm = static_cast<long long>(returnData["ctm"].GetUint64());
       }
       if(!returnData["ctmString"].IsNull()){
         candleRecord.m_ctmString = returnData["ctmString"].GetString();

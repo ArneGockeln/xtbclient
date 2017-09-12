@@ -162,6 +162,17 @@ namespace xtbclient {
     return ms.count();
   }
 
+  /**
+   * Convert utc timestamp to date string Y-m-d I:M:S p
+   * @param long long t_timestamp
+   * @return std::string
+   */
+  std::string Util::getUTCDateFromTimestamp(long long t_timestamp) {
+    date::sys_seconds tp{std::chrono::seconds{t_timestamp}};
+    std::string s = date::format("%Y-%m-%d %I:%M:%S %p", tp);
+    return s;
+  }
+
   /*!
    * Implementation of phps explode(string, delimiter)
    *

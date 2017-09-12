@@ -86,7 +86,7 @@ namespace xtbclient {
     Client(ClientType t_clientType);
     ~Client();
 
-    bool sendLogin(const char* t_username, const char* t_password);
+    bool login(const char *t_username, const char *t_password);
     std::string sendRequest(std::string t_json);
     std::string getResponse();
     void setStreamListener(StreamListener* t_streamListener);

@@ -31,7 +31,7 @@ int main() {
     // set up client
     Client client(ClientType::DEMO);
     // try to login
-    if( client.sendLogin("account_id", "super_awesome_password") ) {
+    if( client.login("account_id", "super_awesome_password") ) {
       // send request for user data
       UserDataRecord userDataRecord = client.getCurrentUserData();
       cout << "Currency: " << userDataRecord.m_currency << endl;
@@ -57,7 +57,7 @@ public:
 
 int main() {
   Client client(ClientType::DEMO);
-  if( client.sendLogin( "account_id", "super_awesome_password") ){
+  if( client.login( "account_id", "super_awesome_password") ){
     // set stream client
     Client streamClient(ClientType::DEMO_STREAM);
     streamClient.setStreamSessionId( client.getStreamSessionId() );

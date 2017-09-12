@@ -24,6 +24,9 @@ namespace xtbclient {
     static void printError(const std::string& message) {
       fprintf(stderr, "Error: %s\n", message.c_str());
     }
+    static void printMessage(const std::string& message){
+      fprintf(stdout, "xtbclient: %s\n", message.c_str());
+    }
     static void ltrim(std::string &s);
     static void rtrim(std::string &s);
     static void trim(std::string &s);
@@ -36,6 +39,7 @@ namespace xtbclient {
     static char* trim(char *s);
 
     static long long int getUTCinMilliseconds(int day, unsigned int month, int year, int hour, int minute, int second);
+    static std::string getUTCDateFromTimestamp(long long t_timestamp);
 
     static std::vector<std::string> explode(std::string const& s, char dlim);
   };
