@@ -488,12 +488,13 @@ namespace xtbclient {
   /*!
    * Get ChartLastRequest
    *
-   * @param ChartLastInfoRecrd& t_record
-   * @return ChartLastRequest
+   * @param ChartLastInfoRecord& t_record
+   * @return ChartLastRequestRecord
    */
-  ChartLastRequest Client::getChartLastRequest(ChartLastInfoRecord &t_record) {
+  ChartLastRequestRecord Client::getChartLastRequest(ChartLastInfoRecord &t_record) {
 
-    ChartLastRequest chartLastRequest;
+    ChartLastRequestRecord chartLastRequest;
+    chartLastRequest.m_digits = 0;
 
     // Request validation
     if(t_record.m_start == 0){
@@ -518,7 +519,7 @@ namespace xtbclient {
       auto returnData = getReturnData( std::move( response ) )->GetObject();
 
       if(!returnData["digits"].IsNull()){
-        chartLastRequest.setDigits( returnData["digits"].GetInt() );
+        chartLastRequest.m_digits = returnData["digits"].GetInt();
       }
 
       if(!returnData["rateInfos"].IsNull() && returnData["rateInfos"].IsArray()){
@@ -547,7 +548,7 @@ namespace xtbclient {
             rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
           }
 
-          chartLastRequest.getRateInfos().push_back(rateInfoRecord);
+          chartLastRequest.m_rateInfos.push_back(rateInfoRecord);
         }
       }
     } catch(...){
@@ -635,10 +636,11 @@ namespace xtbclient {
    * Get getChartRangeRequest
    *
    * @param ChartRangeInfoRecord t_record
-   * @return ChartLastRequest
+   * @return ChartLastRequestRecord
    */
-  ChartLastRequest Client::getChartLastRangeRequest(ChartRangeInfoRecord &t_record) {
-    ChartLastRequest chartLastRequest;
+  ChartLastRequestRecord Client::getChartLastRangeRequest(ChartRangeInfoRecord &t_record) {
+    ChartLastRequestRecord chartLastRequest;
+    chartLastRequest.m_digits = 0;
 
     // Request validation
     if(t_record.m_start == 0){
@@ -668,7 +670,7 @@ namespace xtbclient {
       auto returnData = getReturnData( std::move( response ) )->GetObject();
 
       if(!returnData["digits"].IsNull()){
-        chartLastRequest.setDigits( returnData["digits"].GetInt() );
+        chartLastRequest.m_digits = returnData["digits"].GetInt();
       }
 
       if(!returnData["rateInfos"].IsNull() && returnData["rateInfos"].IsArray()){
@@ -697,7 +699,7 @@ namespace xtbclient {
             rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
           }
 
-          chartLastRequest.getRateInfos().push_back(rateInfoRecord);
+          chartLastRequest.m_rateInfos.push_back(rateInfoRecord);
         }
       }
     } catch(...){

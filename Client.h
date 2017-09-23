@@ -13,8 +13,8 @@
 #include <mutex>
 #include "StreamListener.h"
 #include "Util.h"
-#include "ChartLastRequest.h"
 #include "record/ChartLastInfoRecord.h"
+#include "record/ChartLastRequestRecord.h"
 #include "record/SymbolRecord.h"
 #include "record/CalendarRecord.h"
 #include "record/ChartRangeInfoRecord.h"
@@ -97,9 +97,9 @@ namespace xtbclient {
      * Requests
      */
     std::vector<SymbolRecord> getAllSymbols();
-    ChartLastRequest getChartLastRequest( ChartLastInfoRecord& t_record );
+    ChartLastRequestRecord getChartLastRequest( ChartLastInfoRecord& t_record );
     std::vector<CalendarRecord> getCalendar();
-    ChartLastRequest getChartLastRangeRequest( ChartRangeInfoRecord& t_record );
+    ChartLastRequestRecord getChartLastRangeRequest( ChartRangeInfoRecord& t_record );
     CommissionRecord getCommissionDef( const std::string& t_symbol, double t_volume );
     UserDataRecord getCurrentUserData();
     std::vector<IBRecord> getIbsHistory( long long t_start, long long t_end );
