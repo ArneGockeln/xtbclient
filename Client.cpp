@@ -181,13 +181,27 @@ namespace xtbclient {
 
     if(ssl != nullptr && t_json.length() > 0){
       // mutex write to ssl
-      ssl_write(ssl, t_json.data(), static_cast<int>(t_json.length()));
+      ssl_write(ssl, t_json.c_str(), static_cast<int>(t_json.length()));
 
       response = getResponse();
     }
 
     // return response
     return response;
+  }
+
+  /*!
+   * Write to ssl fd without response
+   *
+   * @param std::string t_json
+   */
+  void Client::sendRequestWithoutResponse(std::string t_json){
+    SSL *ssl = getSSL();
+
+    if( ssl != nullptr && !t_json.empty() ){
+      // mutex write to ssl
+      ssl_write(ssl, t_json.c_str(), static_cast<int>(t_json.length()));
+    }
   }
 
   /*!
@@ -1654,10 +1668,7 @@ namespace xtbclient {
    */
   void Client::ping() {
     // request
-    std::string response = sendRequest( RequestFactory::getPing() );
-    if(Util::hasAPIResponseError( response )){
-      return;
-    }
+    sendRequestWithoutResponse( RequestFactory::getPing() );
   }
 
   /*!
@@ -1681,7 +1692,10 @@ namespace xtbclient {
     }
 
     // request
-    std::string response = sendRequest( RequestFactory::getTradeTransaction( t_info ) );
+    std::string request = RequestFactory::getTradeTransaction( t_info );
+    fprintf(stdout, "tradeTransactionRequest: %s\n", request.c_str());
+    std::string response = sendRequest( request );
+    fprintf(stdout, "tradeTransactionResponse: %s\n", response.c_str());
 
     // parse
     try {
@@ -1950,14 +1964,14 @@ namespace xtbclient {
    * Subscribe to balance data
    */
   void Client::subscribeBalance() {
-    sendRequest( RequestFactory::subscribeBalance( getStreamSessionId() ) );
+    sendRequestWithoutResponse( RequestFactory::subscribeBalance( getStreamSessionId() ) );
   }
 
   /*!
    * Stop balance subscription
    */
   void Client::stopBalance() {
-    sendRequest( RequestFactory::stopBalance() );
+    sendRequestWithoutResponse( RequestFactory::stopBalance() );
   }
 
   /*!
@@ -2003,7 +2017,7 @@ namespace xtbclient {
    * @param std::string t_symbol
    */
   void Client::subscribeCandles(std::string t_symbol) {
-    sendRequest(RequestFactory::subscribeCandles(&t_symbol, getStreamSessionId() ));
+    sendRequestWithoutResponse( RequestFactory::subscribeCandles( &t_symbol, getStreamSessionId() ) );
   }
 
   /*!
@@ -2055,14 +2069,14 @@ namespace xtbclient {
    * @param t_symbol
    */
   void Client::stopCandles(std::string t_symbol) {
-    sendRequest(RequestFactory::stopCandles(&t_symbol));
+    sendRequestWithoutResponse( RequestFactory::stopCandles(&t_symbol) );
   }
 
   /*!
    * Subscribe to keep alive
    */
   void Client::subscribeKeepAlive() {
-    sendRequest(RequestFactory::subscribeKeepAlive( getStreamSessionId() ));
+    sendRequestWithoutResponse( RequestFactory::subscribeKeepAlive( getStreamSessionId() ) );
   }
 
   /*!
@@ -2087,14 +2101,14 @@ namespace xtbclient {
    * Stop keep alive subscription
    */
   void Client::stopKeepAlive() {
-    sendRequest(RequestFactory::stopKeepAlive());
+    sendRequestWithoutResponse( RequestFactory::stopKeepAlive() );
   }
 
   /*!
    * Subscribe to news
    */
   void Client::subscribeNews() {
-    sendRequest(RequestFactory::subscribeNews( getStreamSessionId() ));
+    sendRequestWithoutResponse( RequestFactory::subscribeNews( getStreamSessionId() ) );
   }
 
   /*!
@@ -2131,14 +2145,14 @@ namespace xtbclient {
    * Stop news subscription
    */
   void Client::stopNews() {
-    sendRequest(RequestFactory::stopNews());
+    sendRequestWithoutResponse( RequestFactory::stopNews() );
   }
 
   /*!
    * Subscribe to profits
    */
   void Client::subscribeProfits() {
-    sendRequest(RequestFactory::subscribeProfits( getStreamSessionId() ));
+    sendRequestWithoutResponse( RequestFactory::subscribeProfits( getStreamSessionId() ) );
   }
 
   /*!
@@ -2175,7 +2189,7 @@ namespace xtbclient {
    * Stop profits subscription
    */
   void Client::stopProfits() {
-    sendRequest(RequestFactory::stopProfits());
+    sendRequestWithoutResponse( RequestFactory::stopProfits() );
   }
 
   /*!
@@ -2186,7 +2200,7 @@ namespace xtbclient {
    * @param int t_maxLevel
    */
   void Client::subscribeTickPrices(std::string t_symbol, int t_minArrivalTime, int t_maxLevel) {
-    sendRequest( RequestFactory::subscribeTickPrices(&t_symbol, t_minArrivalTime, t_maxLevel, getStreamSessionId() ) );
+    sendRequestWithoutResponse( RequestFactory::subscribeTickPrices(&t_symbol, t_minArrivalTime, t_maxLevel, getStreamSessionId() ) );
   }
 
   /*!
@@ -2249,14 +2263,14 @@ namespace xtbclient {
    * @param std::string t_symbol
    */
   void Client::stopTickPrices(std::string t_symbol) {
-    sendRequest(RequestFactory::stopTickPrices(&t_symbol));
+    sendRequestWithoutResponse( RequestFactory::stopTickPrices(&t_symbol) );
   }
 
   /*!
    * Subscribe to trades
    */
   void Client::subscribeTrades() {
-    sendRequest(RequestFactory::subscribeTrades( getStreamSessionId() ));
+    sendRequestWithoutResponse( RequestFactory::subscribeTrades( getStreamSessionId() ) );
   }
 
   /*!
@@ -2355,14 +2369,14 @@ namespace xtbclient {
    * Stop trades subscription
    */
   void Client::stopTrades() {
-    sendRequest(RequestFactory::stopTrades());
+    sendRequestWithoutResponse( RequestFactory::stopTrades() );
   }
 
   /*!
    * Subscribe to trade status
    */
   void Client::subscribeTradeStatus() {
-    sendRequest( RequestFactory::subscribeTradeStatus( getStreamSessionId() ) );
+    sendRequestWithoutResponse( RequestFactory::subscribeTradeStatus( getStreamSessionId() ) );
   }
 
   /*!
@@ -2402,7 +2416,7 @@ namespace xtbclient {
    * Stop trade status subscription
    */
   void Client::stopTradeStatus() {
-    sendRequest(RequestFactory::stopTradeStatus());
+    sendRequestWithoutResponse( RequestFactory::stopTradeStatus() );
   }
 
   /*!
