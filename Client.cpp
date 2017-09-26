@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <thread>
 #include <netdb.h>
+#include <math.h>
 
 namespace xtbclient {
 
@@ -548,6 +549,14 @@ namespace xtbclient {
             rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
           }
 
+          // calculate down to pips
+          double power = pow(10, chartLastRequest.m_digits);
+          double openPrice = rateInfoRecord.m_open / power;
+          rateInfoRecord.m_open = openPrice;
+          rateInfoRecord.m_close = openPrice - (rateInfoRecord.m_close / power);
+          rateInfoRecord.m_high = openPrice - (rateInfoRecord.m_high / power);
+          rateInfoRecord.m_low = openPrice - (rateInfoRecord.m_low / power);
+
           chartLastRequest.m_rateInfos.push_back(rateInfoRecord);
         }
       }
@@ -698,6 +707,14 @@ namespace xtbclient {
           if(!rateInfo["vol"].IsNull()){
             rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
           }
+
+          // calculate down to pips
+          double power = pow(10, chartLastRequest.m_digits);
+          double openPrice = rateInfoRecord.m_open / power;
+          rateInfoRecord.m_open = openPrice;
+          rateInfoRecord.m_close = openPrice - (rateInfoRecord.m_close / power);
+          rateInfoRecord.m_high = openPrice - (rateInfoRecord.m_high / power);
+          rateInfoRecord.m_low = openPrice - (rateInfoRecord.m_low / power);
 
           chartLastRequest.m_rateInfos.push_back(rateInfoRecord);
         }
