@@ -11,9 +11,9 @@
 
 namespace xtbclient {
   struct ChartRangeInfoRecord {
-    uint64_t m_end;
+    long long int m_end;
     Period m_period;
-    uint64_t m_start;
+    long long int m_start;
     std::string m_symbol;
     signed int m_ticks;
   };

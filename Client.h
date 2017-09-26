@@ -99,7 +99,7 @@ namespace xtbclient {
     std::vector<SymbolRecord> getAllSymbols();
     ChartLastRequestRecord getChartLastRequest( ChartLastInfoRecord& t_record );
     std::vector<CalendarRecord> getCalendar();
-    ChartLastRequestRecord getChartLastRangeRequest( ChartRangeInfoRecord& t_record );
+    ChartLastRequestRecord getChartRangeRequest(ChartRangeInfoRecord &t_record);
     CommissionRecord getCommissionDef( const std::string& t_symbol, double t_volume );
     UserDataRecord getCurrentUserData();
     std::vector<IBRecord> getIbsHistory( long long t_start, long long t_end );

@@ -13,6 +13,9 @@
 #include <netdb.h>
 #include <math.h>
 
+// uncomment to show json request/response
+#define DEBUG_REQUEST_RESPONSE 1
+
 namespace xtbclient {
 
   Client::Client(ClientType t_clientType) {
@@ -647,7 +650,7 @@ namespace xtbclient {
    * @param ChartRangeInfoRecord t_record
    * @return ChartLastRequestRecord
    */
-  ChartLastRequestRecord Client::getChartLastRangeRequest(ChartRangeInfoRecord &t_record) {
+  ChartLastRequestRecord Client::getChartRangeRequest(ChartRangeInfoRecord &t_record) {
     ChartLastRequestRecord chartLastRequest;
     chartLastRequest.m_digits = 0;
 
@@ -682,45 +685,48 @@ namespace xtbclient {
         chartLastRequest.m_digits = returnData["digits"].GetInt();
       }
 
-      if(!returnData["rateInfos"].IsNull() && returnData["rateInfos"].IsArray()){
-        for(auto& rateInfo : returnData["rateInfos"].GetArray()){
-          RateInfoRecord rateInfoRecord;
-
-          if(!rateInfo["close"].IsNull()){
-            rateInfoRecord.m_close = rateInfo["close"].GetDouble();
-          }
-          if(!rateInfo["ctm"].IsNull()){
-            rateInfoRecord.m_ctm = rateInfo["ctm"].GetUint64();
-          }
-          if(!rateInfo["ctmString"].IsNull()){
-            rateInfoRecord.m_ctmString = rateInfo["ctmString"].GetString();
-          }
-          if(!rateInfo["high"].IsNull()){
-            rateInfoRecord.m_high = rateInfo["high"].GetDouble();
-          }
-          if(!rateInfo["low"].IsNull()){
-            rateInfoRecord.m_low = rateInfo["low"].GetDouble();
-          }
-          if(!rateInfo["open"].IsNull()){
-            rateInfoRecord.m_open = rateInfo["open"].GetDouble();
-          }
-          if(!rateInfo["vol"].IsNull()){
-            rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
-          }
-
-          // calculate down to pips
-          double power = pow(10, chartLastRequest.m_digits);
-          double openPrice = rateInfoRecord.m_open / power;
-          rateInfoRecord.m_open = openPrice;
-          rateInfoRecord.m_close = openPrice - (rateInfoRecord.m_close / power);
-          rateInfoRecord.m_high = openPrice - (rateInfoRecord.m_high / power);
-          rateInfoRecord.m_low = openPrice - (rateInfoRecord.m_low / power);
-
-          chartLastRequest.m_rateInfos.push_back(rateInfoRecord);
-        }
+      if( returnData["rateInfos"].IsNull() || !returnData["rateInfos"].IsArray() ){
+        throw std::runtime_error("getChartRangeRequest() -> rateInfos is null or not an array!");
       }
-    } catch(...){
-      fprintf(stderr, "unknown error in Client::getChartLastRangeRequest()\n");
+
+      for( const auto& rateInfo : returnData["rateInfos"].GetArray() ){
+        RateInfoRecord rateInfoRecord;
+
+        if( !rateInfo["close"].IsNull() ){
+          rateInfoRecord.m_close = rateInfo["close"].GetDouble();
+        }
+        if( !rateInfo["ctm"].IsNull() ){
+          rateInfoRecord.m_ctm = rateInfo["ctm"].GetUint64();
+        }
+        if( !rateInfo["ctmString"].IsNull() ){
+          rateInfoRecord.m_ctmString = rateInfo["ctmString"].GetString();
+        }
+        if( !rateInfo["high"].IsNull() ){
+          rateInfoRecord.m_high = rateInfo["high"].GetDouble();
+        }
+        if( !rateInfo["low"].IsNull() ){
+          rateInfoRecord.m_low = rateInfo["low"].GetDouble();
+        }
+        if( !rateInfo["open"].IsNull() ){
+          rateInfoRecord.m_open = rateInfo["open"].GetDouble();
+        }
+        if( !rateInfo["vol"].IsNull() ){
+          rateInfoRecord.m_vol = rateInfo["vol"].GetDouble();
+        }
+
+        // calculate down to pips
+        double power = pow(10, chartLastRequest.m_digits);
+        double openPrice = rateInfoRecord.m_open / power;
+        rateInfoRecord.m_open = openPrice;
+        rateInfoRecord.m_close = openPrice - (rateInfoRecord.m_close / power);
+        rateInfoRecord.m_high = openPrice - (rateInfoRecord.m_high / power);
+        rateInfoRecord.m_low = openPrice - (rateInfoRecord.m_low / power);
+
+        chartLastRequest.m_rateInfos.push_back( rateInfoRecord );
+      }
+
+    } catch(const std::exception& ex){
+      fprintf(stderr, "%s\n", ex.what());
     }
 
     return chartLastRequest;
