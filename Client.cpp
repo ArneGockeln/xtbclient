@@ -1693,9 +1693,7 @@ namespace xtbclient {
 
     // request
     std::string request = RequestFactory::getTradeTransaction( t_info );
-    fprintf(stdout, "tradeTransactionRequest: %s\n", request.c_str());
     std::string response = sendRequest( request );
-    fprintf(stdout, "tradeTransactionResponse: %s\n", response.c_str());
 
     // parse
     try {
