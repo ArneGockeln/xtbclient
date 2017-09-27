@@ -231,10 +231,10 @@ namespace xtbclient {
    *
    * @param std::string& t_response
    */
-  void Client::cleanResponse(std::string &t_response) {
+  void Client::cleanResponse( std::string &t_response ) {
     // check if empty string
     if( !t_response.empty() ){
-      if(isResponseEnd(t_response) ){
+      if( isResponseEnd( t_response ) ){
         // remove the \n\n record terminator
         Util::rtrim( t_response );
         Util::rtrim( t_response );
@@ -250,7 +250,7 @@ namespace xtbclient {
   std::string Client::getResponse() {
     std::string response;
 
-    char buf[1024];
+    char buf[ 1024 ];
     SSL* ssl = getSSL();
     SSL_CTX_set_options(SSL_get_SSL_CTX(ssl), SSL_OP_NO_SSLv2);
 
@@ -259,14 +259,14 @@ namespace xtbclient {
       int bytes;
       // first read, if record block termination found, return response
       m_ssl_mutex.lock();
-      bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
-      switch(SSL_get_error(ssl, bytes)){
+      bytes = SSL_read( ssl, buf, sizeof( buf ) - 1 );
+      switch( SSL_get_error( ssl, bytes ) ){
         case SSL_ERROR_NONE:
-          response.append(buf, strlen(buf));
+          response.append( buf, strlen( buf ) );
 
-          if(isResponseEnd(response) ){
+          if( isResponseEnd( response ) ){
             // clean up response string
-            cleanResponse(response);
+            cleanResponse( response );
             // unlock mutex
             m_ssl_mutex.unlock();
             // return response
@@ -274,9 +274,9 @@ namespace xtbclient {
           }
           break;
         case SSL_ERROR_ZERO_RETURN:
-          if(isResponseEnd(response) ){
+          if( isResponseEnd( response ) ){
             // clean up response string
-            cleanResponse(response);
+            cleanResponse( response );
             // unlock mutex
             m_ssl_mutex.unlock();
             // return response
@@ -295,15 +295,15 @@ namespace xtbclient {
       bool bLooping = true;
       while( bLooping ){
 
-        memset(buf, '\0', sizeof(buf));
+        memset( buf, '\0', sizeof( buf ) );
         m_ssl_mutex.lock();
-        bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
+        bytes = SSL_read( ssl, buf, sizeof( buf ) - 1 );
 
-        switch(SSL_get_error(ssl, bytes)){
+        switch( SSL_get_error( ssl, bytes ) ){
           case SSL_ERROR_NONE:
-            response.append(buf, strlen(buf));
+            response.append( buf, strlen( buf ) );
 
-            if(isResponseEnd(response) ){
+            if( isResponseEnd( response ) ){
               // unlock mutex
               m_ssl_mutex.unlock();
               // leave while
@@ -311,7 +311,7 @@ namespace xtbclient {
             }
             break;
           case SSL_ERROR_ZERO_RETURN:
-            if(isResponseEnd(response) ){
+            if( isResponseEnd( response ) ){
               // unlock mutex
               m_ssl_mutex.unlock();
               // leave while
@@ -330,7 +330,7 @@ namespace xtbclient {
     } // - if ssl end
 
     // clean up response string
-    cleanResponse(response);
+    cleanResponse( response );
 
     // return response string
     return response;
