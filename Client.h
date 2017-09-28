@@ -5,6 +5,9 @@
 #ifndef XTBCLIENT_CLIENT_H
 #define XTBCLIENT_CLIENT_H
 
+#define xtbclient_VERSION_MAJOR @xtbclient_VERSION_MAJOR@
+#define xtbclient_VERSION_MINOR @xtbclient_VERSION_MINOR@
+
 #include <rapidjson/error/en.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>

@@ -20,3 +20,9 @@ set(SOURCE_FILES ${SOURCE_FILES} enums/Period.h enums/ApiType.h enums/MarginMode
 set(SOURCE_FILES ${SOURCE_FILES} record/StreamBalanceRecord.h record/MarginLevelRecord.h record/NewsRecord.h record/QuoteRecord.h record/ServerTimeRecord.h record/StepRecord.h record/StepRuleRecord.h record/TradeTransactionStatusRecord.h record/TradingHourRecord.h record/TradeRecord.h record/TradingRecord.h record/TickRecord.h record/TradeTransactionInfo.h record/IBRecord.h record/UserDataRecord.h record/CommissionRecord.h record/ChartLastInfoRecord.h record/ChartRangeInfoRecord.h record/ChartLastRequestRecord.h record/CalendarRecord.h record/SymbolRecord.h record/ChartLastInfoRecord.h record/RateInfoRecord.h record/StreamCandleRecord.h record/StreamNewsRecord.h record/StreamProfitRecord.h record/StreamTickRecord.h record/StreamTradeRecord.h record/StreamTradeStatusRecord.h)
 # compile shared library
 add_library(xtbclient SHARED ${SOURCE_FILES})
+# install
+if("${CMAKE_BUILD_TYPE} equals Release")
+    install(FILES ${SOURCE_FILES} DESTINATION include/xtbclient)
+    install(TARGETS xtbclient EXPORT xtbclient-targets DESTINATION lib/xtbclient)
+    install(EXPORT xtbclient-targets DESTINATION lib/xtbclient)
+endif("${CMAKE_BUILD_TYPE} equals Release")
