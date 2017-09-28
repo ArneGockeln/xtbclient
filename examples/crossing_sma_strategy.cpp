@@ -12,7 +12,10 @@
 using namespace xtbclient;
 using namespace std;
 
-class EURUSDHandler {
+/*!
+ * The forex handler
+ */
+class FXHandler {
 private:
   Client *m_client;
   vector<StreamCandleRecord> m_candleList;
@@ -62,10 +65,10 @@ private:
   }
 
 public:
-  EURUSDHandler(Client* t_client) {
+  FXHandler(Client* t_client) {
     m_client = t_client;
   }
-  ~EURUSDHandler(){}
+  ~FXHandler(){}
 
   vector<StreamCandleRecord>& getCandleList(){
     return m_candleList;
@@ -82,7 +85,6 @@ public:
   bool isEntrySituation(){
 
     if( m_order > 0 ) {
-      fprintf(stdout, "isEntrySituation? order is > 0\n");
       return false;
     }
 
@@ -118,36 +120,6 @@ public:
   }
 
   /*!
-   * Exit situation
-   * @return
-   */
-  bool isExitSituation(){
-
-    if( m_order == 0 ) {
-      return false;
-    }
-    if( m_trade_direction == 0 ) {
-      return false;
-    }
-
-    double smaFast = getSimpleMovingAverage( m_sma_fast );
-    StreamCandleRecord lastCandle = m_candleList.back();
-
-    // if short && last close price is above sma15, close
-    if( m_trade_direction == -1 && lastCandle.m_close > smaFast ){
-      fprintf(stdout, "short close signal\n");
-      return true;
-    }
-    // if long && last close price is below sma15, close
-    else if( m_trade_direction == 1 && lastCandle.m_close < smaFast ){
-      fprintf(stdout, "long close signal\n");
-      return true;
-    }
-
-    return false;
-  }
-
-  /*!
    * Open Trade Transaction
    * @return
    */
@@ -155,7 +127,6 @@ public:
 
     // open only 1 trade
     if( m_order > 0 ) {
-      fprintf(stdout, "openTrade. order is > 0\n");
       return false;
     }
 
@@ -255,10 +226,10 @@ public:
    */
 class SimpleListener: public StreamListener {
 private:
-  EURUSDHandler* m_handler;
+  FXHandler* m_handler;
 
 public:
-  SimpleListener(EURUSDHandler* t_handler){
+  SimpleListener(FXHandler* t_handler){
     m_handler = t_handler;
   }
 
@@ -273,6 +244,7 @@ public:
     }
   }
 
+  // get transaction information to stdout
   void onTradeStatus(StreamTradeStatusRecord statusRecord) override {
     string status = "ACCEPTED";
 
@@ -297,13 +269,16 @@ public:
   }
 };
 
+/*!
+ * Start
+ * @return
+ */
 int main() {
 
   Client client(ClientType::DEMO);
+  FXHandler fxHandler( &client );
 
-  EURUSDHandler fxHandler( &client );
-
-  if(client.login( XTBACCOUNTID, XTBPASSWORD ) ){
+  if( client.login( XTBACCOUNTID, XTBPASSWORD ) ){
 
     // Prefill candle list with historical data
     ChartRangeInfoRecord rangeRequest;
@@ -334,7 +309,9 @@ int main() {
     Client streamClient(ClientType::DEMO_STREAM);
     streamClient.setStreamSessionId( client.getStreamSessionId() );
 
+    // subscribe to tade status
     streamClient.subscribeTradeStatus();
+    // subscribe to candles
     streamClient.subscribeCandles( fxHandler.getSymbol() );
 
     fprintf(stdout, "Waiting for next candle...\n");
@@ -344,19 +321,3 @@ int main() {
     streamClient.setStreamListener( &listener );
   }
 }
-
-
-/*int main() {
-  Client client(ClientType::DEMO);
-  // API Anmeldung
-  if(client.login("10091849", "super_awesome_password")){
-    // Kurs Abfrage
-    SymbolRecord symbolRecord = client.getSymbol("EURUSD");
-    // Ausgabe
-    fprintf(stdout, "bid: %f, ask: %f, low: %f, high: %f\n",
-            symbolRecord.m_bid, symbolRecord.m_ask,
-            symbolRecord.m_low, symbolRecord.m_high
-    );
-  }
-}
-*/
