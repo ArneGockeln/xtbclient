@@ -2,6 +2,10 @@
 // Created by Arne Gockeln on 09.09.17.
 //
 
+// ------------------------------------------------------------------
+// -------- WARNING! THIS IS ONLY FOR EDUCATION! --------------------
+// ------------------------------------------------------------------
+
 #include <iostream>
 #include <xtbclient/Client.h>
 
