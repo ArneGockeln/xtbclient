@@ -15,14 +15,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${L_DIR}/date/include")
 # rapidjson
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${L_DIR}/rapidjson")
 # source files
-set(SOURCE_FILES Client.cpp Client.h StreamListener.cpp StreamListener.h RequestFactory.cpp RequestFactory.h Util.cpp Util.h)
-set(SOURCE_FILES ${SOURCE_FILES} enums/Period.h enums/ApiType.h enums/MarginMode.h enums/ProfitMode.h enums/QuoteId.h enums/RequestStatus.h enums/Side.h enums/TransactionCmd.h enums/TransactionType.h enums/Weekdays.h)
-set(SOURCE_FILES ${SOURCE_FILES} record/StreamBalanceRecord.h record/MarginLevelRecord.h record/NewsRecord.h record/QuoteRecord.h record/ServerTimeRecord.h record/StepRecord.h record/StepRuleRecord.h record/TradeTransactionStatusRecord.h record/TradingHourRecord.h record/TradeRecord.h record/TradingRecord.h record/TickRecord.h record/TradeTransactionInfo.h record/IBRecord.h record/UserDataRecord.h record/CommissionRecord.h record/ChartLastInfoRecord.h record/ChartRangeInfoRecord.h record/ChartLastRequestRecord.h record/CalendarRecord.h record/SymbolRecord.h record/ChartLastInfoRecord.h record/RateInfoRecord.h record/StreamCandleRecord.h record/StreamNewsRecord.h record/StreamProfitRecord.h record/StreamTickRecord.h record/StreamTradeRecord.h record/StreamTradeStatusRecord.h)
+set(SOURCE_FILES src/Client.cpp src/Client.h src/StreamListener.cpp src/StreamListener.h src/RequestFactory.cpp src/RequestFactory.h src/Util.cpp src/Util.h)
+set(SOURCE_FILES ${SOURCE_FILES} src/enums/Period.h src/enums/ApiType.h src/enums/MarginMode.h src/enums/ProfitMode.h src/enums/QuoteId.h src/enums/RequestStatus.h src/enums/Side.h src/enums/TransactionCmd.h src/enums/TransactionType.h src/enums/Weekdays.h)
+set(SOURCE_FILES ${SOURCE_FILES} src/record/StreamBalanceRecord.h src/record/MarginLevelRecord.h src/record/NewsRecord.h src/record/QuoteRecord.h src/record/ServerTimeRecord.h src/record/StepRecord.h src/record/StepRuleRecord.h src/record/TradeTransactionStatusRecord.h src/record/TradingHourRecord.h src/record/TradeRecord.h src/record/TradingRecord.h src/record/TickRecord.h src/record/TradeTransactionInfo.h src/record/IBRecord.h src/record/UserDataRecord.h src/record/CommissionRecord.h src/record/ChartLastInfoRecord.h src/record/ChartRangeInfoRecord.h src/record/ChartLastRequestRecord.h src/record/CalendarRecord.h src/record/SymbolRecord.h src/record/ChartLastInfoRecord.h src/record/RateInfoRecord.h src/record/StreamCandleRecord.h src/record/StreamNewsRecord.h src/record/StreamProfitRecord.h src/record/StreamTickRecord.h src/record/StreamTradeRecord.h src/record/StreamTradeStatusRecord.h)
+
 # compile shared library
 add_library(xtbclient SHARED ${SOURCE_FILES})
-# install
-if("${CMAKE_BUILD_TYPE} equals Release")
-    install(FILES ${SOURCE_FILES} DESTINATION include/xtbclient)
-    install(TARGETS xtbclient EXPORT xtbclient-targets DESTINATION lib/xtbclient)
-    install(EXPORT xtbclient-targets DESTINATION lib/xtbclient)
-endif("${CMAKE_BUILD_TYPE} equals Release")
+
+# install header files to include/xtbclient
+install(DIRECTORY src/ DESTINATION include/xtbclient CONFIGURATIONS Release FILES_MATCHING PATTERN "*.h")
+# install library to lib/xtbclient
+install(TARGETS xtbclient DESTINATION lib/xtbclient)
+
+# build examples
+add_subdirectory(examples)
