@@ -6,6 +6,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
 #include "date/date.h"
+#include "date/tz.h"
 #include <chrono>
 #include <vector>
 
@@ -160,6 +161,32 @@ namespace xtbclient {
     auto ms = duration_cast<milliseconds>(tp.time_since_epoch());
 
     return ms.count();
+  }
+
+  /*!
+   * Get UTC NOW timestamp in milliseconds
+   * @return long long int
+   */
+  long long int Util::getUTCinMillisecondsNow() {
+    auto ms = duration_cast<milliseconds>( system_clock::now().time_since_epoch() );
+    return ms.count();
+  }
+
+  /*!
+   * Get UTC from NOW in milliseconds
+   * @param int days
+   * @param unsigned int months
+   * @param int years
+   * @param int hours
+   * @param int minutes
+   * @param int seconds
+   * @return long long int
+   */
+  long long int Util::getUTCinMillisecondsFromNow(int days, unsigned int months, int years, int hours, int minutes, int seconds){
+    long long int now_ms = getUTCinMillisecondsNow();
+    long long int minus_time_ms = getUTCinMilliseconds(days, months, years, hours, minutes, seconds);
+
+    return (now_ms - minus_time_ms);
   }
 
   /**

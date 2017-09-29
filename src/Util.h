@@ -8,7 +8,7 @@
 #include <rapidjson/document.h>
 #include <string>
 #include <chrono>
-#include <date/date.h>
+#include "date/date.h"
 
 using namespace rapidjson;
 
@@ -39,6 +39,8 @@ namespace xtbclient {
     static char* trim(char *s);
 
     static long long int getUTCinMilliseconds(int day, unsigned int month, int year, int hour, int minute, int second);
+    static long long int getUTCinMillisecondsNow();
+    static long long int getUTCinMillisecondsFromNow(int days, unsigned int months, int years, int hours, int minutes, int seconds);
     static std::string getUTCDateFromTimestamp(long long t_timestamp);
 
     static std::vector<std::string> explode(std::string const& s, char dlim);
