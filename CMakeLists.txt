@@ -6,14 +6,18 @@ set(xtbclient_VERSION_MINOR 0)
 set(CMAKE_CXX_STANDARD 14)
 # release build type
 set(CMAKE_BUILD_TYPE Release)
+# set inc directory
+set(INC_DIR "/usr/local/include")
 # set opt directory
-set(L_DIR "/usr/local/opt")
-# openssl
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${L_DIR}/openssl/include -L${L_DIR}/openssl/lib -lssl -lcrypto")
+set(OPT_DIR "/usr/local/opt")
+# set ssl dir
+set(SSL_DIR "/usr/local/opt/openssl@1.1")
+# openssl -L${OPT_DIR}/openssl@1.1/lib -lssl -lcrypto
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${SSL_DIR}/include")
 # date
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${L_DIR}/date/include")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${INC_DIR}/date/include")
 # rapidjson
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${L_DIR}/rapidjson")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${INC_DIR}/rapidjson")
 # source files
 set(SOURCE_FILES src/Client.cpp src/Client.h src/StreamListener.cpp src/StreamListener.h src/RequestFactory.cpp src/RequestFactory.h src/Util.cpp src/Util.h)
 set(SOURCE_FILES ${SOURCE_FILES} src/enums/Period.h src/enums/ApiType.h src/enums/MarginMode.h src/enums/ProfitMode.h src/enums/QuoteId.h src/enums/RequestStatus.h src/enums/Side.h src/enums/TransactionCmd.h src/enums/TransactionType.h src/enums/Weekdays.h)
@@ -21,6 +25,10 @@ set(SOURCE_FILES ${SOURCE_FILES} src/record/StreamBalanceRecord.h src/record/Mar
 
 # compile shared library
 add_library(xtbclient SHARED ${SOURCE_FILES})
+
+# linking
+target_link_libraries(xtbclient ${SSL_DIR}/lib/libssl.dylib)
+target_link_libraries(xtbclient ${SSL_DIR}/lib/libcrypto.dylib)
 
 # install header files to include/xtbclient
 install(DIRECTORY src/ DESTINATION include/xtbclient CONFIGURATIONS Release FILES_MATCHING PATTERN "*.h")
