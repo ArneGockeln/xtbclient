@@ -289,8 +289,8 @@ int main() {
     rangeRequest.m_symbol = fxHandler.getSymbol();
     rangeRequest.m_period = PERIOD_M1;
     rangeRequest.m_ticks = 0;
-    rangeRequest.m_end = Util::getUTCinMilliseconds(26, 9, 2017, 22, 4, 0);
-    rangeRequest.m_start = Util::getUTCinMilliseconds(26, 9, 2017, 19, 0, 0);
+    rangeRequest.m_end = Util::getUTCTimestampMS();
+    rangeRequest.m_start = Util::getUTCTimestampDifferenceMS(5*3600);
     ChartLastRequestRecord chartRangeRecord = client.getChartRangeRequest( rangeRequest );
 
     for(auto &item : chartRangeRecord.m_rateInfos){
