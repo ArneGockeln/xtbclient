@@ -43,6 +43,11 @@ namespace xtbclient {
     static long long int getUTCinMillisecondsFromNow(int days, unsigned int months, int years, int hours, int minutes, int seconds);
     static std::string getUTCDateFromTimestamp(long long t_timestamp);
 
+    static date::sys_seconds parseISO8601(const std::string& str);
+    static std::chrono::seconds getUTCTimestamp();
+    static std::chrono::seconds getUTCTimestampDifference(const long long int seconds);
+    static std::chrono::milliseconds getMilliseconds(const std::chrono::seconds seconds);
+
     static std::vector<std::string> explode(std::string const& s, char dlim);
   };
 }

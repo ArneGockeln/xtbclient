@@ -169,6 +169,7 @@ namespace xtbclient {
    */
   long long int Util::getUTCinMillisecondsNow() {
     auto ms = duration_cast<milliseconds>( system_clock::now().time_since_epoch() );
+
     return ms.count();
   }
 
@@ -198,6 +199,62 @@ namespace xtbclient {
     date::sys_seconds tp{std::chrono::seconds{t_timestamp}};
     std::string s = date::format("%Y-%m-%d %I:%M:%S %p", tp);
     return s;
+  }
+
+  /*!
+   * Parse iso8601 datetime string to sys_seconds
+   *
+   * @param std::string& str
+   * @return date::sys_seconds
+   */
+  date::sys_seconds Util::parseISO8601(const std::string& str){
+    std::istringstream in(str);
+    date::sys_seconds tp;
+    in >> date::parse("%FT%TZ", tp);
+    if( in.fail() ){
+      in.clear();
+      in.str(str);
+      in >> date::parse("%FT%T%z", tp);
+    }
+    return tp;
+  }
+
+  /*!
+   * Get utc timestamp in seconds
+   *
+   * @return std::chrono::seconds
+   */
+  std::chrono::seconds Util::getUTCTimestamp(){
+    auto now = std::chrono::system_clock::now();
+    auto result = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+    return result;
+  }
+
+  /*!
+   * Get utc timestamp with difference
+   *
+   * @param const long long int seconds
+   * @return
+   */
+  std::chrono::seconds Util::getUTCTimestampDifference(const long long int seconds){
+    auto now = std::chrono::system_clock::now();
+    auto diff = now - std::chrono::seconds( seconds );
+
+    // get seconds
+    auto result = std::chrono::duration_cast<std::chrono::seconds>( diff.time_since_epoch() );
+
+    return result;
+  }
+
+  /*!
+   * Convert seconds to milliseconds
+   *
+   * @param const std::chrono::seconds seconds
+   * @return std::chrono::milliseconds
+   */
+  std::chrono::milliseconds Util::getMilliseconds(const std::chrono::seconds seconds){
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(seconds);
+    return ms;
   }
 
   /*!
