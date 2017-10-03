@@ -143,51 +143,22 @@ namespace xtbclient {
   }
 
   /*!
-   * Get UTC timestamp in milliseconds
-   *
-   * @param int t_day
-   * @param unsigned int t_month
-   * @param int t_year
-   * @param int t_hour
-   * @param int t_minute
-   * @param int t_second
-   * @return long long int
-   */
-  long long int Util::getUTCinMilliseconds(int t_day, unsigned int t_month, int t_year, int t_hour, int t_minute, int t_second) {
-    auto ymd = month(t_month)/t_day/t_year;
-    auto tod = make_time(hours{t_hour} + minutes{t_minute} + seconds{t_second});
-    system_clock::time_point tp = sys_days(ymd) + seconds(tod);
-
-    auto ms = duration_cast<milliseconds>(tp.time_since_epoch());
-
-    return ms.count();
-  }
-
-  /*!
    * Get UTC NOW timestamp in milliseconds
+   *
    * @return long long int
    */
-  long long int Util::getUTCinMillisecondsNow() {
-    auto ms = duration_cast<milliseconds>( system_clock::now().time_since_epoch() );
-
-    return ms.count();
+  long long int Util::getUTCTimestampMS() {
+    return getMilliseconds( getUTCTimestamp() ).count();
   }
 
   /*!
-   * Get UTC from NOW in milliseconds
-   * @param int days
-   * @param unsigned int months
-   * @param int years
-   * @param int hours
-   * @param int minutes
-   * @param int seconds
+   * Get UTC timestamp difference from now in milliseconds
+   *
+   * @param const long long int seconds
    * @return long long int
    */
-  long long int Util::getUTCinMillisecondsFromNow(int days, unsigned int months, int years, int hours, int minutes, int seconds){
-    long long int now_ms = getUTCinMillisecondsNow();
-    long long int minus_time_ms = getUTCinMilliseconds(days, months, years, hours, minutes, seconds);
-
-    return (now_ms - minus_time_ms);
+  long long int Util::getUTCTimestampDifferenceMS(const long long int seconds){
+    return getMilliseconds( getUTCTimestampDifference( seconds ) ).count();
   }
 
   /**
