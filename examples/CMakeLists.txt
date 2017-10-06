@@ -11,8 +11,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${INC_DIR}/date/include")
 # executables
 add_executable(symbol symbol.cpp)
 add_executable(tickprices tickprices.cpp)
-add_executable(crossing_sma_strategy crossing_sma_strategy.cpp)
+#add_executable(crossing_sma_strategy crossing_sma_strategy.cpp)
 
 target_link_libraries(symbol ${LIB_DIR}/xtbclient/libxtbclient.dylib)
 target_link_libraries(tickprices ${LIB_DIR}/xtbclient/libxtbclient.dylib)
-target_link_libraries(crossing_sma_strategy ${LIB_DIR}/xtbclient/libxtbclient.dylib)
+#target_link_libraries(crossing_sma_strategy ${LIB_DIR}/xtbclient/libxtbclient.dylib)

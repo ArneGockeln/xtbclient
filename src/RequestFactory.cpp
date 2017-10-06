@@ -373,15 +373,14 @@ namespace xtbclient {
 
     SetValueByPointer(document, "/command", "tradeTransaction");
     SetValueByPointer(document, "/arguments/tradeTransInfo/cmd", m_tradeTransInfo.m_cmd);
-    SetValueByPointer(document, "/arguments/tradeTransInfo/customComment", m_tradeTransInfo.m_customComment.c_str());
+    SetValueByPointer(document, "/arguments/tradeTransInfo/customComment", StringRef(m_tradeTransInfo.m_customComment.c_str()));
     SetValueByPointer(document, "/arguments/tradeTransInfo/expiration", m_tradeTransInfo.m_expiration);
     SetValueByPointer(document, "/arguments/tradeTransInfo/offset", m_tradeTransInfo.m_offset);
 
-    // convert unsigned long int to string
-    std::ostringstream order_str;
-    order_str << m_tradeTransInfo.m_order;
+    // convert unsigned long int to uint64_t
+    uint64_t order64 = static_cast<uint64_t>(m_tradeTransInfo.m_order);
 
-    SetValueByPointer(document, "/arguments/tradeTransInfo/order", StringRef(order_str.str().c_str()));
+    SetValueByPointer(document, "/arguments/tradeTransInfo/order", order64);
     SetValueByPointer(document, "/arguments/tradeTransInfo/price", m_tradeTransInfo.m_price);
     SetValueByPointer(document, "/arguments/tradeTransInfo/sl", m_tradeTransInfo.m_sl);
     SetValueByPointer(document, "/arguments/tradeTransInfo/symbol", m_tradeTransInfo.m_symbol.c_str());
@@ -401,12 +400,11 @@ namespace xtbclient {
   std::string RequestFactory::getTradeTransactionStatus(unsigned long int t_order) {
     Document document;
 
-    // convert unsigned long int to string
-    std::ostringstream order_str;
-    order_str << t_order;
+    // convert unsigned long int to uint64_t
+    uint64_t order64 = static_cast<uint64_t>(t_order);
 
     SetValueByPointer(document, "/command", "tradeTransactionStatus");
-    SetValueByPointer(document, "/arguments/order", StringRef(order_str.str().c_str()));
+    SetValueByPointer(document, "/arguments/order", order64);
 
     return getStringify(&document);
   }

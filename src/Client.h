@@ -60,6 +60,8 @@ namespace xtbclient {
     StreamListener *m_streamlistner;
     // mutex for ssl
     std::mutex m_ssl_mutex;
+    // flag to enable json debugging
+    bool m_debug_json_requests = false;
 
     SSL_CTX* createContext();
     void initClient();
@@ -93,6 +95,8 @@ namespace xtbclient {
     void setStreamListener(StreamListener* t_streamListener);
     const char* getStreamSessionId();
     void setStreamSessionId(const char* t_streamSessionId);
+
+    void setDebugJsonRequests(bool flag);
 
     /*!
      * Requests

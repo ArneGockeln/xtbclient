@@ -177,6 +177,11 @@ namespace xtbclient {
     std::string response;
 
     if(ssl != nullptr && t_json.length() > 0){
+
+      if( m_debug_json_requests ){
+        fprintf(stdout, "Request: %s\n", t_json.c_str());
+      }
+
       // mutex write to ssl
       ssl_write(ssl, t_json.c_str(), static_cast<int>(t_json.length()));
 
@@ -2596,5 +2601,14 @@ namespace xtbclient {
       SSL_CTX_free( SSL_get_SSL_CTX( m_ssl_stream ) );
       SSL_free( m_ssl_stream );
     }
+  }
+
+  /*!
+   * Set to true, to show all json requests in stdout
+   *
+   * @param bool flag
+   */
+  void Client::setDebugJsonRequests(bool flag) {
+    m_debug_json_requests = flag;
   }
 };
