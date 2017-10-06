@@ -12,7 +12,7 @@ namespace xtbclient {
   struct StreamTradeStatusRecord {
     std::string m_customComment;
     std::string m_message;
-    unsigned int m_order;
+    unsigned long int m_order;
     double m_price;
     RequestStatus m_requestStatus;
   };

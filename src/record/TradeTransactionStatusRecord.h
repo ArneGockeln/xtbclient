@@ -14,7 +14,7 @@ namespace xtbclient {
     double m_bid;
     std::string m_customComment;
     std::string m_message;
-    signed int m_order;
+    unsigned long int m_order;
     RequestStatus m_requestStatus;
   };
 }

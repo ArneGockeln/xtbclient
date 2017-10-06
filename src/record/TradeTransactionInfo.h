@@ -15,7 +15,7 @@ namespace xtbclient {
     std::string m_customComment;
     uint64_t m_expiration;
     signed int m_offset;
-    signed int m_order;
+    unsigned long int m_order;
     double m_price;
     double m_sl;
     std::string m_symbol;

@@ -5,6 +5,7 @@
 #include "RequestFactory.h"
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+#include <sstream>
 
 namespace xtbclient {
   using namespace rapidjson;
@@ -261,10 +262,10 @@ namespace xtbclient {
   /*!
    * Get trade records request
    *
-   * @param std::vector<long long> t_orders
+   * @param std::vector<unsigned long int> t_orders
    * @return std::string
    */
-  std::string RequestFactory::getTradeRecords(std::vector<long long> t_orders) {
+  std::string RequestFactory::getTradeRecords(std::vector<unsigned long int> t_orders) {
     Document document;
 
     Document::AllocatorType& allocator = document.GetAllocator();
@@ -273,7 +274,14 @@ namespace xtbclient {
 
     Value orders(kArrayType);
     for(auto &order : t_orders){
-      orders.PushBack(order, allocator);
+      // convert unsigned long int to string
+      std::ostringstream ostr;
+      ostr << order;
+
+      // set json value
+      Value v;
+      v.SetString(StringRef(ostr.str().c_str()));
+      orders.PushBack(v, allocator);
     }
 
     SetValueByPointer(document, "/arguments/orders", orders);
@@ -368,7 +376,12 @@ namespace xtbclient {
     SetValueByPointer(document, "/arguments/tradeTransInfo/customComment", m_tradeTransInfo.m_customComment.c_str());
     SetValueByPointer(document, "/arguments/tradeTransInfo/expiration", m_tradeTransInfo.m_expiration);
     SetValueByPointer(document, "/arguments/tradeTransInfo/offset", m_tradeTransInfo.m_offset);
-    SetValueByPointer(document, "/arguments/tradeTransInfo/order", m_tradeTransInfo.m_order);
+
+    // convert unsigned long int to string
+    std::ostringstream order_str;
+    order_str << m_tradeTransInfo.m_order;
+
+    SetValueByPointer(document, "/arguments/tradeTransInfo/order", StringRef(order_str.str().c_str()));
     SetValueByPointer(document, "/arguments/tradeTransInfo/price", m_tradeTransInfo.m_price);
     SetValueByPointer(document, "/arguments/tradeTransInfo/sl", m_tradeTransInfo.m_sl);
     SetValueByPointer(document, "/arguments/tradeTransInfo/symbol", m_tradeTransInfo.m_symbol.c_str());
@@ -382,14 +395,18 @@ namespace xtbclient {
   /*!
    * Get trade transaction status request
    *
-   * @param long long t_order
+   * @param unsigned long int t_order
    * @return std::string
    */
-  std::string RequestFactory::getTradeTransactionStatus(long long t_order) {
+  std::string RequestFactory::getTradeTransactionStatus(unsigned long int t_order) {
     Document document;
 
+    // convert unsigned long int to string
+    std::ostringstream order_str;
+    order_str << t_order;
+
     SetValueByPointer(document, "/command", "tradeTransactionStatus");
-    SetValueByPointer(document, "/arguments/order", t_order);
+    SetValueByPointer(document, "/arguments/order", StringRef(order_str.str().c_str()));
 
     return getStringify(&document);
   }

@@ -23,7 +23,7 @@ class FXHandler {
 private:
   Client *m_client;
   vector<StreamCandleRecord> m_candleList;
-  long long int m_order = 0;
+  unsigned long int m_order = 0;
   const string m_symbol = "EURUSD";
 
   /*!
@@ -167,7 +167,7 @@ public:
     }
 
     // send to api and get order id
-    long long int orderID = m_client->tradeTransaction( trade );
+    unsigned long int orderID = m_client->tradeTransaction( trade );
 
     // check the status of the transaction
     TradeTransactionStatusRecord transactionStatus = m_client->getTradeTransactionStatus( orderID );
@@ -268,7 +268,7 @@ public:
         break;
     }
 
-    fprintf(stdout, "Trade: %s %s/%d price: %f status: %s\n", statusRecord.m_customComment.c_str(), statusRecord.m_message.c_str(), statusRecord.m_order,
+    fprintf(stdout, "Trade: %s %s/%ld price: %f status: %s\n", statusRecord.m_customComment.c_str(), statusRecord.m_message.c_str(), statusRecord.m_order,
             statusRecord.m_price, status.c_str());
   }
 };

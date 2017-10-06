@@ -112,14 +112,14 @@ namespace xtbclient {
     std::vector<StepRuleRecord> getStepRules();
     SymbolRecord getSymbol(const std::string& t_symbol);
     std::vector<TickRecord> getTickPrices(int t_level, long long t_timestamp, std::vector<std::string> t_symbols);
-    std::vector<TradeRecord> getTradeRecords(std::vector<long long> t_orders);
+    std::vector<TradeRecord> getTradeRecords(std::vector<unsigned long int> t_orders);
     std::vector<TradeRecord> getTrades(bool t_openedOnly);
     std::vector<TradeRecord> getTradeHistory(long long t_start, long long t_end);
     std::vector<TradingHourRecord> getTradingHours(std::vector<std::string> t_symbols);
     std::string getVersion();
     void ping();
-    long long tradeTransaction(TradeTransactionInfo &t_info);
-    TradeTransactionStatusRecord getTradeTransactionStatus(long long t_ordernr);
+    unsigned long int tradeTransaction(TradeTransactionInfo &t_info);
+    TradeTransactionStatusRecord getTradeTransactionStatus(unsigned long int t_ordernr);
     TradeRecord getTradeRecordFromObj(const rapidjson::GenericValue<rapidjson::UTF8<char>>& obj);
 
     /*!

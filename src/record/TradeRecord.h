@@ -27,9 +27,9 @@ namespace xtbclient {
     double m_open_price;
     uint64_t m_open_time;
     std::string m_open_timeString;
-    unsigned int m_order;
-    unsigned int m_order2;
-    unsigned int m_position;
+    unsigned long int m_order;
+    unsigned long int m_order2;
+    unsigned long int m_position;
     double m_profit;
     double m_sl;
     double m_storage;

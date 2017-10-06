@@ -40,14 +40,14 @@ namespace xtbclient {
     static std::string getStepRules();
     static std::string getSymbol(const std::string& t_symbol);
     static std::string getTickPrices(int t_level, long long t_timestamp, std::vector<std::string> t_symbols);
-    static std::string getTradeRecords(std::vector<long long> t_orders);
+    static std::string getTradeRecords(std::vector<unsigned long int> t_orders);
     static std::string getTrades(bool t_openedOnly);
     static std::string getTradesHistory(long long t_start, long long t_end);
     static std::string getTradingHours(std::vector<std::string> t_symbols);
     static std::string getVersion();
     static std::string getPing();
     static std::string getTradeTransaction(TradeTransactionInfo& t_info);
-    static std::string getTradeTransactionStatus(long long t_order);
+    static std::string getTradeTransactionStatus(unsigned long int t_order);
 
     // subscription commands
     static std::string subscribeBalance(const char* t_streamSessionId);

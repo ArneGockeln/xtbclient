@@ -7,6 +7,7 @@
 
 #include <string>
 #include "../enums/TransactionCmd.h"
+#include "../enums/TransactionType.h"
 
 namespace xtbclient {
   struct StreamTradeRecord {
@@ -23,16 +24,16 @@ namespace xtbclient {
     int m_offset;
     double m_open_price;
     long long m_open_time;
-    unsigned int m_order;
-    unsigned int m_order2;
-    unsigned int m_position;
+    unsigned long int m_order;
+    unsigned long int m_order2;
+    unsigned long int m_position;
     double m_profit;
     double m_sl;
     std::string m_state;
     double m_storage;
     std::string m_symbol;
     double m_tp;
-    int m_type;
+    TransactionType m_type;
     double m_volume;
   };
 }

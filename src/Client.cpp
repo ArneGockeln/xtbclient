@@ -1465,10 +1465,10 @@ namespace xtbclient {
   /*!
    * Get trade records
    *
-   * @param std::vector<long long> t_orders
+   * @param std::vector<unsigned long int> t_orders
    * @return std::vector<TradeRecord>
    */
-  std::vector<TradeRecord> Client::getTradeRecords(std::vector<long long> t_orders) {
+  std::vector<TradeRecord> Client::getTradeRecords(std::vector<unsigned long int> t_orders) {
     std::vector<TradeRecord> recordList;
 
     // validate
@@ -1672,10 +1672,10 @@ namespace xtbclient {
    * Get trade transaction
    *
    * @param TradeTransaction& t_info
-   * @return long long order id
+   * @return unsigned long int order id
    */
-  long long Client::tradeTransaction(TradeTransactionInfo &t_info) {
-    long long ordernr = 0;
+  unsigned long int Client::tradeTransaction(TradeTransactionInfo &t_info) {
+    unsigned long int ordernr = 0;
 
     // validate
     if(t_info.m_symbol.empty()){
@@ -1696,7 +1696,7 @@ namespace xtbclient {
     try {
       auto obj = getReturnData( response )->GetObject();
       if(!obj["order"].IsNull()){
-        ordernr = obj["order"].GetInt();
+        ordernr = static_cast<unsigned long int>(obj["order"].GetUint64());
       }
     } catch(...){
       Util::printError("unknown error in Client::tradeTransaction()");
@@ -1708,10 +1708,10 @@ namespace xtbclient {
   /*!
    * Get trade transaction status
    *
-   * @param long long t_ordernr
+   * @param unsigned long int t_ordernr
    * @return TradeTransactionStatusRecord
    */
-  TradeTransactionStatusRecord Client::getTradeTransactionStatus(long long t_ordernr) {
+  TradeTransactionStatusRecord Client::getTradeTransactionStatus(unsigned long int t_ordernr) {
     TradeTransactionStatusRecord record;
 
     // validate
@@ -1740,7 +1740,7 @@ namespace xtbclient {
         record.m_message = obj["message"].GetString();
       }
       if(!obj["order"].IsNull()){
-        record.m_order = obj["order"].GetInt();
+        record.m_order = static_cast<unsigned long int>(obj["order"].GetUint64());
       }
       if(!obj["requestStatus"].IsNull()){
         record.m_requestStatus = static_cast<RequestStatus>(obj["requestStatus"].GetInt());
@@ -1810,13 +1810,13 @@ namespace xtbclient {
       record.m_open_timeString = obj["open_timeString"].GetString();
     }
     if(!obj["order"].IsNull()){
-      record.m_order = obj["order"].GetUint();
+      record.m_order = static_cast<unsigned long int>(obj["order"].GetUint64());
     }
     if(!obj["order2"].IsNull()){
-      record.m_order2 = obj["order2"].GetUint();
+      record.m_order2 = static_cast<unsigned long int>(obj["order2"].GetUint64());
     }
     if(!obj["position"].IsNull()){
-      record.m_position = obj["position"].GetUint();
+      record.m_position = static_cast<unsigned long int>(obj["position"].GetUint64());
     }
     if(!obj["profit"].IsNull()){
       record.m_profit = obj["profit"].GetDouble();
@@ -2162,13 +2162,13 @@ namespace xtbclient {
       StreamProfitRecord profitRecord{0,0,0,0};
 
       if(!returnData["order"].IsNull()){
-        profitRecord.m_order = returnData["order"].GetInt();
+        profitRecord.m_order = static_cast<unsigned long int>(returnData["order"].GetUint64());
       }
       if(!returnData["order2"].IsNull()){
-        profitRecord.m_order2 = returnData["order2"].GetInt();
+        profitRecord.m_order2 = static_cast<unsigned long int>(returnData["order2"].GetUint64());
       }
       if(!returnData["position"].IsNull()){
-        profitRecord.m_position = returnData["position"].GetInt();
+        profitRecord.m_position = static_cast<unsigned long int>(returnData["position"].GetUint64());
       }
       if(!returnData["profit"].IsNull()){
         profitRecord.m_profit = returnData["profit"].GetDouble();
@@ -2320,13 +2320,13 @@ namespace xtbclient {
         record.m_open_time = obj["open_time"].GetUint64();
       }
       if(!obj["order"].IsNull()){
-        record.m_order = obj["order"].GetUint();
+        record.m_order = static_cast<unsigned long int>(obj["order"].GetUint64());
       }
       if(!obj["order2"].IsNull()){
-        record.m_order2 = obj["order2"].GetUint();
+        record.m_order2 = static_cast<unsigned long int>(obj["order2"].GetUint64());
       }
       if(!obj["position"].IsNull()){
-        record.m_position = obj["position"].GetUint();
+        record.m_position = static_cast<unsigned long int>(obj["position"].GetUint64());
       }
       if(!obj["profit"].IsNull()){
         record.m_profit = obj["profit"].GetDouble();
@@ -2392,7 +2392,7 @@ namespace xtbclient {
         statusRecord.m_message = streamData["message"].GetString();
       }
       if(!streamData["order"].IsNull()){
-        statusRecord.m_order = streamData["order"].GetUint();
+        statusRecord.m_order = static_cast<unsigned long int>(streamData["order"].GetUint64());
       }
       if(!streamData["price"].IsNull()){
         statusRecord.m_price = streamData["price"].GetDouble();

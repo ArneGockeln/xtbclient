@@ -7,9 +7,9 @@
 
 namespace xtbclient {
   struct StreamProfitRecord {
-    int m_order;
-    int m_order2;
-    int m_position;
+    unsigned long int m_order;
+    unsigned long int m_order2;
+    unsigned long int m_position;
     double m_profit;
   };
 }
