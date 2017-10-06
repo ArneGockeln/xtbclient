@@ -13,9 +13,6 @@
 #include <netdb.h>
 #include <math.h>
 
-// uncomment to show json request/response
-#define DEBUG_REQUEST_RESPONSE 1
-
 namespace xtbclient {
 
   Client::Client(ClientType t_clientType) {
@@ -2395,7 +2392,7 @@ namespace xtbclient {
         statusRecord.m_message = streamData["message"].GetString();
       }
       if(!streamData["order"].IsNull()){
-        statusRecord.m_order = streamData["order"].GetInt();
+        statusRecord.m_order = streamData["order"].GetUint();
       }
       if(!streamData["price"].IsNull()){
         statusRecord.m_price = streamData["price"].GetDouble();
