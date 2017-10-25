@@ -9,6 +9,7 @@
 #include <string>
 #include <chrono>
 #include <date/date.h>
+#include <vector>
 
 using namespace rapidjson;
 

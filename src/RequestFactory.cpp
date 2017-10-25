@@ -73,7 +73,7 @@ namespace xtbclient {
 
     SetValueByPointer(document, "/command", "getChartLastRequest");
     SetValueByPointer(document, "/arguments/info/period", static_cast<int>(t_infoRecord.m_period));
-    SetValueByPointer(document, "/arguments/info/start", t_infoRecord.m_start);
+    SetValueByPointer(document, "/arguments/info/start", static_cast<int64_t>(t_infoRecord.m_start));
     SetValueByPointer(document, "/arguments/info/symbol", StringRef(t_infoRecord.m_symbol.c_str()));
 
     return getStringify(&document);
@@ -89,9 +89,9 @@ namespace xtbclient {
     Document document;
 
     SetValueByPointer(document, "/command", "getChartRangeRequest");
-    SetValueByPointer(document, "/arguments/info/end", t_infoRecord.m_end);
+    SetValueByPointer(document, "/arguments/info/end", static_cast<int64_t>(t_infoRecord.m_end));
     SetValueByPointer(document, "/arguments/info/period", static_cast<int>(t_infoRecord.m_period));
-    SetValueByPointer(document, "/arguments/info/start", t_infoRecord.m_start);
+    SetValueByPointer(document, "/arguments/info/start", static_cast<int64_t>(t_infoRecord.m_start));
     SetValueByPointer(document, "/arguments/info/symbol", StringRef(t_infoRecord.m_symbol.c_str()));
     SetValueByPointer(document, "/arguments/info/ticks", t_infoRecord.m_ticks);
 
@@ -126,8 +126,8 @@ namespace xtbclient {
     Document document;
 
     SetValueByPointer(document, "/command", "getIbsHistory");
-    SetValueByPointer(document, "/arguments/start", t_start);
-    SetValueByPointer(document, "/arguments/end", t_end);
+    SetValueByPointer(document, "/arguments/start", static_cast<int64_t>(t_start));
+    SetValueByPointer(document, "/arguments/end", static_cast<int64_t>(t_end));
 
     return getStringify(&document);
   }
@@ -169,8 +169,8 @@ namespace xtbclient {
     Document document;
 
     SetValueByPointer(document, "/command", "getNews");
-    SetValueByPointer(document, "/arguments/start", t_start);
-    SetValueByPointer(document, "/arguments/end", t_end);
+    SetValueByPointer(document, "/arguments/start", static_cast<int64_t>(t_start));
+    SetValueByPointer(document, "/arguments/end", static_cast<int64_t>(t_end));
 
     return getStringify(&document);
   }
@@ -245,7 +245,7 @@ namespace xtbclient {
 
     SetValueByPointer(document, "/command", "getTickPrices");
     SetValueByPointer(document, "/arguments/level", t_level);
-    SetValueByPointer(document, "/arguments/timestamp", t_timestamp);
+    SetValueByPointer(document, "/arguments/timestamp", static_cast<int64_t>(t_timestamp));
 
     Value symbols(kArrayType);
     Document::AllocatorType& allocator = document.GetAllocator();
@@ -315,8 +315,8 @@ namespace xtbclient {
     Document document;
 
     SetValueByPointer(document, "/command", "getTradesHistory");
-    SetValueByPointer(document, "/arguments/start", t_start);
-    SetValueByPointer(document, "/arguments/end", t_end);
+    SetValueByPointer(document, "/arguments/start", static_cast<int64_t>(t_start));
+    SetValueByPointer(document, "/arguments/end", static_cast<int64_t>(t_end));
 
     return getStringify(&document);
   }
