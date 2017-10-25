@@ -11,9 +11,52 @@ I followed the style guide of [C++ Best Practice](https://github.com/lefticus/cp
 
 ## Dependencies
 - C++14 
-- [OpenSSL](http://openssl.org/)
-- [RapidJson](http://rapidjson.org/)
+- [OpenSSL](https://github.com/openssl/openssl) use github and configure with shared option
+- [RapidJson](https://github.com/Tencent/rapidjson/)
 - [date](https://github.com/HowardHinnant/date)
+
+## Build
+### OpenSSL
+```bash
+$ cd /tmp
+$ git clone https://github.com/openssl/openssl
+$ cd openssl
+$ ./config shared
+$ make
+$ make test
+$ make install
+```
+
+### rapidjson
+```bash
+$ cd /tmp
+$ git clone https://github.com/Tencent/rapidjson
+$ mkdir rapidjson/build
+$ cd rapidjson/build
+$ ccmake ../
+$ make
+$ make test
+$ make install
+```
+
+### date
+```bash
+$ cd /tmp
+$ git clone https://github.com/HowardHinnant/date
+$ cd date
+$ cp -R include/date /usr/local/include
+```
+
+### xtbclient
+```bash
+$ cd /tmp
+$ git clone https://github.com/ArneGockeln/xtbclient
+$ mkdir xtbclient/build
+$ cd xtbclient/build
+$ ccmake ../
+$ make
+$ make install
+```
 
 # Examples
 
