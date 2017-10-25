@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.7)
 project(xtbclient)
 # Version
 set(xtbclient_VERSION_MAJOR 1)
@@ -8,11 +8,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 # set inc directory
 set(INC_DIR "/usr/local/include")
-# set opt directory
-set(OPT_DIR "/usr/local/opt")
-# set ssl dir
-set(SSL_DIR "/usr/local/opt/openssl@1.1")
-# openssl -L${OPT_DIR}/openssl@1.1/lib -lssl -lcrypto
+# set ssl dir on macos
+if(APPLE)
+	set(SSL_DIR "/usr/local/opt/openssl@1.1")
+endif(APPLE)
+# set ssl dir on unix
+if(UNIX)
+	set(SSL_DIR "/usr/local/include/openssl")
+endif(UNIX)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${SSL_DIR}/include")
 # date
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${INC_DIR}/date/include")
@@ -27,8 +30,15 @@ set(SOURCE_FILES ${SOURCE_FILES} src/record/StreamBalanceRecord.h src/record/Mar
 add_library(xtbclient SHARED ${SOURCE_FILES})
 
 # linking
-target_link_libraries(xtbclient ${SSL_DIR}/lib/libssl.dylib)
-target_link_libraries(xtbclient ${SSL_DIR}/lib/libcrypto.dylib)
+if(UNIX)
+	target_link_libraries(xtbclient /usr/local/lib/libssl.so)
+	target_link_libraries(xtbclient /usr/local/lib/libcrypto.so)
+endif(UNIX)
+
+if(APPLE)
+	target_link_libraries(xtbclient ${SSL_DIR}/lib/libssl.dylib)
+	target_link_libraries(xtbclient ${SSL_DIR}/lib/libcrypto.dylib)
+endif(APPLE)
 
 # install header files to include/xtbclient
 install(DIRECTORY src/ DESTINATION include/xtbclient CONFIGURATIONS Release FILES_MATCHING PATTERN "*.h")
@@ -36,4 +46,4 @@ install(DIRECTORY src/ DESTINATION include/xtbclient CONFIGURATIONS Release FILE
 install(TARGETS xtbclient DESTINATION lib/xtbclient)
 
 # build examples
-add_subdirectory(examples)
+#add_subdirectory(examples)
