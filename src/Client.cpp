@@ -2439,15 +2439,15 @@ namespace xtbclient {
   const char* Client::parseStreamSessionId(std::string t_jsonString) {
     Document document = getDocumentFromJson(std::move(t_jsonString));
 
-    std::string sessionId = "";
+    std::string sessionId;
 
     if(document.HasParseError()){
-      return sessionId.c_str();
+      return nullptr;
     }
 
     if(!document["status"].IsNull()){
       if(document["status"].GetBool()){
-        sessionId = document["streamSessionId"].GetString();
+        sessionId.assign(document["streamSessionId"].GetString());
       }
     }
 
