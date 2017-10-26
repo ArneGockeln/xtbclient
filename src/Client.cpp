@@ -178,6 +178,7 @@ namespace xtbclient {
 
     if(ssl != nullptr && t_json.length() > 0){
 
+      // debug requests
       if( m_debug_json_requests ){
         fprintf(stdout, "Request: %s\n", t_json.c_str());
       }
@@ -186,6 +187,11 @@ namespace xtbclient {
       ssl_write(ssl, t_json.c_str(), static_cast<int>(t_json.length()));
 
       response = getResponse();
+
+      // debug response
+      if( m_debug_json_response ){
+        fprintf(stdout, "Response: %s\n", response.c_str());
+      }
     }
 
     // return response
@@ -201,6 +207,11 @@ namespace xtbclient {
     SSL *ssl = getSSL();
 
     if( ssl != nullptr && !t_json.empty() ){
+
+      if( m_debug_json_requests ){
+        fprintf(stdout, "Request: %s\n", t_json.c_str());
+      }
+
       // mutex write to ssl
       ssl_write(ssl, t_json.c_str(), static_cast<int>(t_json.length()));
     }
@@ -2532,6 +2543,11 @@ namespace xtbclient {
             continue;
           }
 
+          // debug response
+          if( m_debug_json_response ){
+            fprintf(stdout, "Response: %s\n", singleResponse.c_str());
+          }
+
           // test for api response error
           if(Util::hasAPIResponseError( singleResponse )){
             break;
@@ -2610,5 +2626,25 @@ namespace xtbclient {
    */
   void Client::setDebugJsonRequests(bool flag) {
     m_debug_json_requests = flag;
+  }
+
+  /*!
+   * Set to true, to show all json response in stdout
+   *
+   * @param bool flag
+   */
+  void Client::setDebugJsonResponse(bool flag) {
+    m_debug_json_response = flag;
+  }
+
+  /*!
+   * Set to true, to show all json response and requests in stdout
+   *
+   * @param bool flag_requests
+   * @param bool flag_responses
+   */
+  void Client::setDebugOutput(bool flag_requests, bool flag_responses) {
+    setDebugJsonRequests(flag_requests);
+    setDebugJsonResponse(flag_responses);
   }
 };
