@@ -439,7 +439,7 @@ namespace xtbclient {
 
     SetValueByPointer(document, "/command", "getCandles");
     SetValueByPointer(document, "/streamSessionId", StringRef(t_streamSessionId));
-    SetValueByPointer(document, "/symbol", StringRef(t_symbol->data()));
+    SetValueByPointer(document, "/symbol", StringRef(t_symbol->c_str()));
 
     return getStringify(&document);
   }
@@ -454,7 +454,7 @@ namespace xtbclient {
     Document document;
 
     SetValueByPointer(document, "/command", "stopCandles");
-    SetValueByPointer(document, "/symbol", StringRef(t_symbol->data()));
+    SetValueByPointer(document, "/symbol", StringRef(t_symbol->c_str()));
 
     return getStringify(&document);
   }
@@ -555,7 +555,7 @@ namespace xtbclient {
     Document document;
 
     SetValueByPointer(document, "/command", "stopTickPrices");
-    SetValueByPointer(document, "/symbol", StringRef(t_symbol->data()));
+    SetValueByPointer(document, "/symbol", StringRef(t_symbol->c_str()));
 
     return getStringify(&document);
   }
