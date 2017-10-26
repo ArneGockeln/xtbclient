@@ -1876,11 +1876,16 @@ namespace xtbclient {
     // get session id
     const char* sessionId = parseStreamSessionId( login_response );
 
+    if(sessionId == nullptr){
+      Util::printError("streamSessionId is nullptr.");
+      return false;
+    }
+
     if(strlen(sessionId) > 0){
       // set session id
       setStreamSessionId( sessionId );
       // message
-      fprintf(stdout, "Logged in.\n");
+      Util::printMessage("Logged in.");
       return true;
     }
 
