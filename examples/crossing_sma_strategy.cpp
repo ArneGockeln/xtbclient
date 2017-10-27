@@ -113,7 +113,7 @@ public:
     m_previous_sma_slow = smaSlow;
 
     // log
-    fprintf(stdout, "sma%d/sma%d %f/%f %s\n",
+    printf("sma%d/sma%d %f/%f %s\n",
             m_sma_fast,
             m_sma_slow,
             smaFast,
@@ -134,7 +134,7 @@ public:
       return false;
     }
 
-    fprintf(stdout, "openTrade ");
+    printf("openTrade\n");
 
     // get current price information
     SymbolRecord eurusd = m_client->getSymbol( m_symbol );
@@ -175,7 +175,7 @@ public:
     if( transactionStatus.m_requestStatus == RS_ACCEPTED ){
       m_order = transactionStatus.m_order;
     } else {
-      fprintf(stdout, "transactionStatus: %d\n", static_cast<int>( transactionStatus.m_requestStatus ) );
+      printf("transactionStatus: %d\n", static_cast<int>( transactionStatus.m_requestStatus ) );
     }
 
     return m_order > 0;
@@ -216,7 +216,7 @@ public:
             m_order = 0;
           }
 
-          fprintf(stdout, "closeTrade->transactionStatus %d\n", static_cast<int>(transactionStatus.m_requestStatus));
+          printf("closeTrade->transactionStatus %d\n", static_cast<int>(transactionStatus.m_requestStatus));
         }
       }
     }
@@ -240,7 +240,7 @@ public:
   void onCandle(StreamCandleRecord candleRecord) override {
     m_handler->getCandleList().push_back( candleRecord );
 
-    fprintf(stdout, "Candle OHLC: %f %f %f %f | ", candleRecord.m_open, candleRecord.m_high, candleRecord.m_low, candleRecord.m_close);
+    printf("Candle OHLC: %f %f %f %f | ", candleRecord.m_open, candleRecord.m_high, candleRecord.m_low, candleRecord.m_close);
 
     // check for entry
     if( m_handler->isEntrySituation() ){
@@ -268,7 +268,7 @@ public:
         break;
     }
 
-    fprintf(stdout, "Trade: %s %s/%ld price: %f status: %s\n", statusRecord.m_customComment.c_str(), statusRecord.m_message.c_str(), statusRecord.m_order,
+    printf("Trade: %s %s/%ld price: %f status: %s\n", statusRecord.m_customComment.c_str(), statusRecord.m_message.c_str(), statusRecord.m_order,
             statusRecord.m_price, status.c_str());
   }
 };
@@ -307,7 +307,7 @@ int main() {
       fxHandler.getCandleList().push_back( candle );
     }
 
-    fprintf(stdout, "Historical Data received: %ld candles\n", fxHandler.getCandleList().size());
+    printf("Historical Data received: %ld candles\n", fxHandler.getCandleList().size());
 
     // set stream client
     Client streamClient(ClientType::DEMO_STREAM);
@@ -318,7 +318,7 @@ int main() {
     // subscribe to candles
     streamClient.subscribeCandles( fxHandler.getSymbol() );
 
-    fprintf(stdout, "Waiting for next candle...\n");
+    printf("Waiting for next candle...\n");
 
     // set stream listener and start listening
     SimpleListener listener( &fxHandler );

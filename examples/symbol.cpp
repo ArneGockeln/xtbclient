@@ -19,7 +19,7 @@ int main() {
     // get symbol record
     SymbolRecord symbolRecord = client.getSymbol( "EURUSD" );
     // output
-    fprintf( stdout, "bid: %f, ask: %f, low: %f, high: %f\n", symbolRecord.m_bid, symbolRecord.m_ask,
+    printf("bid: %f, ask: %f, low: %f, high: %f\n", symbolRecord.m_bid, symbolRecord.m_ask,
             symbolRecord.m_low, symbolRecord.m_high );
   }
 }

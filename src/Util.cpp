@@ -23,7 +23,7 @@ namespace xtbclient {
    */
   bool Util::hasDocumentParseError(Document *t_document) {
     if(t_document->HasParseError()){
-      fprintf(stderr, "JSONParseError: %s\n", GetParseError_En(t_document->GetParseError()));
+      printf("Err: JSONParseError: %s\n", GetParseError_En(t_document->GetParseError()));
       return true;
     }
 
@@ -40,7 +40,7 @@ namespace xtbclient {
     document.Parse<rapidjson::kParseStopWhenDoneFlag>(jsonData->c_str());
 
     if(document.HasParseError()){
-      fprintf(stderr, "JSONParseError: %s\n", GetParseError_En(document.GetParseError()));
+      printf("Err: JSONParseError: %s\n", GetParseError_En(document.GetParseError()));
       return;
     }
 
@@ -58,12 +58,12 @@ namespace xtbclient {
     document.Parse<rapidjson::kParseStopWhenDoneFlag>(jsonResponse.c_str());
 
     if(document.HasParseError()){
-      fprintf(stderr, "JSON Parse Error: %s\n", GetParseError_En(document.GetParseError()));
+      printf("Err: JSON Parse Error: %s\n", GetParseError_En(document.GetParseError()));
       return true;
     }
 
     if(document.HasMember("errorCode")){
-      fprintf(stderr, "API Error (%s): %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
+      printf("Err: API Error (%s): %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
       return true;
     }
 

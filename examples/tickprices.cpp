@@ -17,7 +17,7 @@ using namespace xtbclient;
 class SimpleListener: public StreamListener {
 public:
   void onTickPrices(StreamTickRecord tickRecord) override {
-    fprintf(stdout, "TickRecord: ask=%f, bid=%f, askVolume=%d, bidVolume=%d, high=%f, low=%f\n",
+    printf("TickRecord: ask=%f, bid=%f, askVolume=%d, bidVolume=%d, high=%f, low=%f\n",
             tickRecord.m_ask, tickRecord.m_bid,
             tickRecord.m_askVolume, tickRecord.m_bidVolume,
             tickRecord.m_high, tickRecord.m_low);

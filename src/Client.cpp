@@ -30,7 +30,7 @@ namespace xtbclient {
 
     ctx = SSL_CTX_new( SSLv23_client_method() );
     if(ctx == nullptr){
-      perror("Unable to create SSL context.");
+      printf("Err: Unable to create SSL context.\n");
       ERR_print_errors_fp(stderr);
       exit(EXIT_FAILURE);
     }
@@ -88,7 +88,7 @@ namespace xtbclient {
     socklen_t server_address_len = sizeof(server_address);
 
     if((server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-      perror("Unable to create socket.");
+      printf("Err: Unable to create socket.\n");
       exit(EXIT_FAILURE);
     }
 
@@ -96,12 +96,14 @@ namespace xtbclient {
     setsockopt(server_socket, SOL_SOCKET, SO_REUSEPORT, (const char*)&y, sizeof(y));
 
     if(connect(server_socket, (struct sockaddr *) &server_address, server_address_len) < 0){
-      perror("Unable to connect.");
+      printf("Err: Unable to connect.\n");
       close(server_socket);
       abort();
     }
 
-    fprintf(stdout, "Connected to %s:%d\n", server_host.c_str(), server_port);
+    if( m_flag_verbose ){
+      printf("Connected to %s:%d\n", server_host.c_str(), server_port);
+    }
 
     // openssl init
     OpenSSL_add_all_algorithms();
@@ -110,7 +112,7 @@ namespace xtbclient {
     SSL_load_error_strings();
 
     if(SSL_library_init() < 0){
-      perror("Could not initialize the OpenSSL library!");
+      printf("Err: Could not initialize the OpenSSL library!\n");
       exit(EXIT_FAILURE);
     }
 
@@ -118,14 +120,14 @@ namespace xtbclient {
     SSL_CTX* ssl_ctx = createContext();
     SSL* ssl = SSL_new(ssl_ctx);
     if(ssl == nullptr){
-      fprintf(stderr, "SSL_new failed.\n");
+      printf("Err: SSL_new failed.\n");
       exit(EXIT_FAILURE);
     }
 
     SSL_set_fd(ssl, server_socket);
     if(SSL_connect(ssl) == -1){
       ERR_print_errors_fp(stderr);
-      perror("SSL_connect failed.");
+      printf("Err: SSL_connect failed.\n");
       close(server_socket);
       SSL_CTX_free(ssl_ctx);
       exit(EXIT_FAILURE);
@@ -143,7 +145,7 @@ namespace xtbclient {
    */
   void Client::ssl_write(SSL* t_ssl, const char* t_data, const int t_data_len) {
     if(t_ssl == nullptr){
-      fprintf(stderr, "SSL is nullptr\n");
+      printf("Err: SSL is nullptr\n");
       exit(EXIT_FAILURE);
     }
 
@@ -154,7 +156,7 @@ namespace xtbclient {
     switch(SSL_get_error(t_ssl, write_error)){
       case SSL_ERROR_NONE:
         if(t_data_len != write_error){
-          perror("ssl incomplete write.");
+          printf("Err: SSL incomplete write.\n");
           exit(EXIT_FAILURE);
         }
         break;
@@ -180,7 +182,7 @@ namespace xtbclient {
 
       // debug requests
       if( m_debug_json_requests ){
-        fprintf(stdout, "Request: %s\n", t_json.c_str());
+        printf("Req: %s\n", t_json.c_str());
       }
 
       // mutex write to ssl
@@ -190,7 +192,7 @@ namespace xtbclient {
 
       // debug response
       if( m_debug_json_response ){
-        fprintf(stdout, "Response: %s\n", response.c_str());
+        printf("Resp: %s\n", response.c_str());
       }
     }
 
@@ -209,7 +211,7 @@ namespace xtbclient {
     if( ssl != nullptr && !t_json.empty() ){
 
       if( m_debug_json_requests ){
-        fprintf(stdout, "Request: %s\n", t_json.c_str());
+        printf("Req: %s\n", t_json.c_str());
       }
 
       // mutex write to ssl
@@ -510,7 +512,7 @@ namespace xtbclient {
         recordList.push_back(record);
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getAllSymbols()\n");
+      printf("Err: unknown error in Client::getAllSymbols()\n");
     }
 
     return recordList;
@@ -529,12 +531,12 @@ namespace xtbclient {
 
     // Request validation
     if(t_record.m_start == 0){
-      Util::printError("ChartLastInfoRecord.m_start is 0!");
+      printf("Err: ChartLastInfoRecord.m_start is 0!\n");
       return chartLastRequest;
     }
 
     if(t_record.m_symbol.empty()){
-      Util::printError("ChartLastInfoRecord.m_symbol is empty!");
+      printf("Err: ChartLastInfoRecord.m_symbol is empty!\n");
       return chartLastRequest;
     }
 
@@ -591,7 +593,7 @@ namespace xtbclient {
         }
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getChartLastRequest\n");
+      printf("Err: unknown error in Client::getChartLastRequest\n");
     }
 
     return chartLastRequest;
@@ -665,7 +667,7 @@ namespace xtbclient {
       }
 
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getCalendar()\n");
+      printf("Err: unknown error in Client::getCalendar()\n");
     }
 
     return recordList;
@@ -683,17 +685,17 @@ namespace xtbclient {
 
     // Request validation
     if(t_record.m_start == 0){
-      Util::printError("ChartRangeInfoRecord.m_start is 0!");
+      printf("Err: ChartRangeInfoRecord.m_start is 0!\n");
       return chartLastRequest;
     }
 
     if(t_record.m_end == 0){
-      Util::printError("ChartRangeInfoRecord.m_end is 0!");
+      printf("Err: ChartRangeInfoRecord.m_end is 0!\n");
       return chartLastRequest;
     }
 
     if(t_record.m_symbol.empty()){
-      Util::printError("ChartRangeInfoRecord.m_symbol is empty!");
+      printf("Err: ChartRangeInfoRecord.m_symbol is empty!\n");
       return chartLastRequest;
     }
 
@@ -753,7 +755,7 @@ namespace xtbclient {
       }
 
     } catch(const std::exception& ex){
-      fprintf(stderr, "%s\n", ex.what());
+      printf("Err: %s\n", ex.what());
     }
 
     return chartLastRequest;
@@ -775,7 +777,7 @@ namespace xtbclient {
 
     // Validation
     if(t_symbol.empty()){
-      Util::printError("Symbol is empty!");
+      printf("Err: Symbol is empty!\n");
       return commissionRecord;
     }
 
@@ -797,7 +799,7 @@ namespace xtbclient {
         commissionRecord.m_rateOfExchange = returnData["rateOfExchange"].GetDouble();
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getCommissionDef()\n");
+      printf("Err: unknown error in Client::getCommissionDef()\n");
     }
 
     return commissionRecord;
@@ -862,7 +864,7 @@ namespace xtbclient {
         userDataRecord.m_trailingStop = obj["trailingStop"].GetBool();
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getCurrentUserData()\n");
+      printf("Err: unknown error in Client::getCurrentUserData()\n");
     }
 
     return userDataRecord;
@@ -880,12 +882,12 @@ namespace xtbclient {
 
     // Validate
     if(t_start == 0){
-      Util::printError("start time is 0!");
+      printf("Err: start time is 0!\n");
       return recordList;
     }
 
     if(t_end == 0){
-      Util::printError("end time is 0!");
+      printf("Err: end time is 0!\n");
       return recordList;
     }
 
@@ -958,7 +960,7 @@ namespace xtbclient {
       }
 
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getIbsHistory()\n");
+      printf("Err: unknown error in Client::getIbsHistory()\n");
     }
 
     return recordList;
@@ -1014,7 +1016,7 @@ namespace xtbclient {
       }
 
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getMarginLevel()\n");
+      printf("Err: unknown error in Client::getMarginLevel()\n");
     }
 
     return record;
@@ -1030,7 +1032,7 @@ namespace xtbclient {
   double Client::getMarginTrade(const std::string &t_symbol, double t_volume) {
     // Validate
     if(t_symbol.empty()){
-      Util::printError("Symbol is empty!");
+      printf("Err: Symbol is empty!\n");
       return 0;
     }
 
@@ -1048,7 +1050,7 @@ namespace xtbclient {
         ret = obj["margin"].GetDouble();
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getMarginTrade()\n");
+      printf("Err: unknown error in Client::getMarginTrade()\n");
     }
 
     return ret;
@@ -1066,7 +1068,7 @@ namespace xtbclient {
 
     // Validate
     if(t_start == 0){
-      Util::printError("Start time is 0!");
+      printf("Err: Start time is 0!\n");
       return newsList;
     }
 
@@ -1110,7 +1112,7 @@ namespace xtbclient {
         newsList.push_back(record);
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getNews()\n");
+      printf("Err: unknown error in Client::getNews()\n");
     }
 
     return newsList;
@@ -1132,7 +1134,7 @@ namespace xtbclient {
 
     // validate
     if(t_symbol.empty()){
-      Util::printError("Symbol is empty!");
+      printf("Err: Symbol is empty!\n");
       return ret;
     }
 
@@ -1149,7 +1151,7 @@ namespace xtbclient {
         ret = obj["profit"].GetDouble();
       }
     } catch(...){
-      fprintf(stderr, "unknown error in Client::getProfitCalculation()\n");
+      printf("Err: unknown error in Client::getProfitCalculation()\n");
     }
 
     return ret;
@@ -1178,7 +1180,7 @@ namespace xtbclient {
         serverTimeRecord.m_timeString = obj["timeString"].GetString();
       }
     } catch(...){
-      Util::printError("unknown error in Client::getServerTime()");
+      printf("Err: unknown error in Client::getServerTime()\n");
     }
 
     return serverTimeRecord;
@@ -1232,7 +1234,7 @@ namespace xtbclient {
         recordList.push_back(record);
       }
     } catch(...){
-      Util::printError("unknown error in Client::getStepRules()");
+      printf("Err: unknown error in Client::getStepRules()\n");
     }
 
     return recordList;
@@ -1392,7 +1394,7 @@ namespace xtbclient {
         record.m_type = obj["type"].GetInt();
       }
     } catch(...){
-      Util::printError("unknown error in Client::getSymbol()");
+      printf("Err: unknown error in Client::getSymbol()\n");
     }
 
     return record;
@@ -1412,12 +1414,12 @@ namespace xtbclient {
 
     // validate
     if(t_timestamp == 0){
-      Util::printError("Timestamp is 0!");
+      printf("Err: Timestamp is 0!\n");
       return tickList;
     }
 
     if(t_symbols.empty()){
-      Util::printError("Symbol list is empty!");
+      printf("Err: Symbol list is empty!\n");
       return tickList;
     }
 
@@ -1472,7 +1474,7 @@ namespace xtbclient {
         }
       }
     } catch(...){
-      Util::printError("unknown error in Client::getTickPrices()");
+      printf("Err: unknown error in Client::getTickPrices()\n");
     }
 
     return tickList;
@@ -1489,7 +1491,7 @@ namespace xtbclient {
 
     // validate
     if(t_orders.empty()){
-      Util::printError("Order number list is empty!");
+      printf("Err: Order number list is empty!\n");
       return recordList;
     }
 
@@ -1505,7 +1507,7 @@ namespace xtbclient {
         recordList.push_back(record);
       }
     } catch(...){
-      Util::printError("unknown error in Client::getTradeRecords()");
+      printf("Err: unknown error in Client::getTradeRecords()\n");
     }
 
     return recordList;
@@ -1533,7 +1535,7 @@ namespace xtbclient {
         recordList.push_back(record);
       }
     } catch(...){
-      Util::printError("unknown error in Client::getTrades()");
+      printf("Err: unknown error in Client::getTrades()\n");
     }
 
     return recordList;
@@ -1551,7 +1553,7 @@ namespace xtbclient {
 
     // validate
     if(t_start == 0){
-      Util::printError("Start time is 0!");
+      printf("Err: Start time is 0!\n");
       return recordList;
     }
 
@@ -1568,7 +1570,7 @@ namespace xtbclient {
         recordList.push_back(record);
       }
     } catch(...){
-      Util::printError("unknown error in Client::getTradeHistory()");
+      printf("Err: unknown error in Client::getTradeHistory()\n");
     }
 
     return recordList;
@@ -1585,7 +1587,7 @@ namespace xtbclient {
 
     // validate
     if(t_symbols.empty()){
-      Util::printError("Symbol list is empty!");
+      printf("Err: Symbol list is empty!\n");
       return recordList;
     }
 
@@ -1643,7 +1645,7 @@ namespace xtbclient {
         recordList.push_back(record);
       }
     } catch(...){
-      Util::printError("unknown error in Client::getTradingHours()");
+      printf("Err: unknown error in Client::getTradingHours()\n");
     }
 
     return recordList;
@@ -1670,7 +1672,7 @@ namespace xtbclient {
         version = obj["version"].GetString();
       }
     } catch(...){
-      Util::printError("unknown error in Client::getVersion()");
+      printf("Err: unknown error in Client::getVersion()\n");
     }
 
     return version;
@@ -1695,12 +1697,12 @@ namespace xtbclient {
 
     // validate
     if(t_info.m_symbol.empty()){
-      Util::printError("Symbol is empty!");
+      printf("Err: Symbol is empty!\n");
       return ordernr;
     }
 
     if(t_info.m_price == 0){
-      Util::printError("Price is 0!");
+      printf("Err: Price is 0!\n");
       return ordernr;
     }
 
@@ -1715,7 +1717,7 @@ namespace xtbclient {
         ordernr = static_cast<unsigned long int>(obj["order"].GetUint64());
       }
     } catch(...){
-      Util::printError("unknown error in Client::tradeTransaction()");
+      printf("Err: unknown error in Client::tradeTransaction()\n");
     }
 
     return ordernr;
@@ -1732,7 +1734,7 @@ namespace xtbclient {
 
     // validate
     if(t_ordernr == 0){
-      Util::printError("Ordernr is 0!");
+      printf("Err: Ordernr is 0!\n");
       return record;
     }
 
@@ -1762,7 +1764,7 @@ namespace xtbclient {
         record.m_requestStatus = static_cast<RequestStatus>(obj["requestStatus"].GetInt());
       }
     } catch(...){
-      Util::printError("unknown error in Client::getTradeTransactionStatus()");
+      printf("Err: unknown error in Client::getTradeTransactionStatus()\n");
     }
 
     return record;
@@ -1877,7 +1879,7 @@ namespace xtbclient {
     auto sessionId = parseStreamSessionId( login_response );
 
     if(sessionId == nullptr){
-      Util::printError("streamSessionId is nullptr.");
+      printf("Err: streamSessionId is nullptr.\n");
       return false;
     }
 
@@ -1885,11 +1887,13 @@ namespace xtbclient {
       // set session id
       setStreamSessionId( sessionId );
       // message
-      Util::printMessage("Logged in.");
+      if ( m_flag_verbose ){
+        printf("Logged in.\n");
+      }
       return true;
     }
 
-    Util::printError("could not obtain stream session id!");
+    printf("Err: could not obtain stream session id!\n");
 
     return false;
   }
@@ -2023,7 +2027,7 @@ namespace xtbclient {
 
       m_streamlistner->onBalance(balanceRecord);
     } catch(...){
-      Util::printError("unknown error thread->onBalance()");
+      printf("Err: unknown error thread->onBalance()\n");
     }
   }
 
@@ -2076,7 +2080,7 @@ namespace xtbclient {
 
       m_streamlistner->onCandle(candleRecord);
     } catch(...){
-      Util::printError("unknown error thread->onCandle()");
+      printf("Err: unknown error thread->onCandle()\n");
     }
   }
 
@@ -2109,7 +2113,7 @@ namespace xtbclient {
       }
 
     } catch(...){
-      Util::printError("unknown error thread->onKeepAlive()");
+      printf("Err: unknown error thread->onKeepAlive()\n");
     }
   }
 
@@ -2153,7 +2157,7 @@ namespace xtbclient {
 
       m_streamlistner->onNews(newsRecord);
     } catch(...){
-      Util::printError("unknown error thread->onNews()");
+      printf("Err: unknown error thread->onNews()\n");
     }
   }
 
@@ -2197,7 +2201,7 @@ namespace xtbclient {
 
       m_streamlistner->onProfits(profitRecord);
     } catch(...){
-      Util::printError("unknown error thread->onProfits()");
+      printf("Err: unknown error thread->onProfits()\n");
     }
   }
 
@@ -2269,7 +2273,7 @@ namespace xtbclient {
 
       m_streamlistner->onTickPrices(tickRecord);
     } catch(...){
-      Util::printError("unknown error fork->onTickPrices()");
+      printf("Err: unknown error fork->onTickPrices()\n");
     }
   }
 
@@ -2377,7 +2381,7 @@ namespace xtbclient {
       m_streamlistner->onTrades(record);
 
     } catch(...){
-      Util::printError("unknown error thread->onTrades()");
+      printf("Err: unknown error thread->onTrades()\n");
     }
   }
 
@@ -2424,7 +2428,7 @@ namespace xtbclient {
 
       m_streamlistner->onTradeStatus(statusRecord);
     } catch(...){
-      Util::printError("unknown error thread->onTradeStatus()");
+      printf("Err: unknown error thread->onTradeStatus()\n");
     }
   }
 
@@ -2470,7 +2474,7 @@ namespace xtbclient {
     document.Parse<rapidjson::kParseStopWhenDoneFlag>(t_jsonString.c_str());
 
     if(Util::hasDocumentParseError(&document)){
-      fprintf(stderr, "CorruptJsonString: %s\n", t_jsonString.c_str());
+      printf("Err: CorruptJsonString: %s\n", t_jsonString.c_str());
     }
 
     return document;
@@ -2493,9 +2497,9 @@ namespace xtbclient {
 
     // has error?
     if(document.HasMember("errorCode")){
-      fprintf(stderr, "API Error %s: %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
+      printf("Err: API Error %s: %s\n", document["errorCode"].GetString(), document["errorDescr"].GetString());
     } else if(!document.HasMember("returnData") || !document.HasMember("status")){
-      fprintf(stderr, "No returnData found.\n");
+      printf("Err: No returnData found.\n");
     } else if(!document["status"].IsNull()) {
       if (document["status"].GetBool()) {
         if(!document["returnData"].IsNull()){
@@ -2512,12 +2516,12 @@ namespace xtbclient {
    */
   void Client::listenOnStream() {
     if(!m_ssl_stream){
-      Util::printError("No ssl stream connection available!");
+      printf("Err: No ssl stream connection available!\n");
       return;
     }
 
     if(!m_streamlistner){
-      Util::printError("No StreamListener found!");
+      printf("Err: No StreamListener found!\n");
       return;
     }
 
@@ -2526,7 +2530,7 @@ namespace xtbclient {
 
       while(true){
         if(!m_ssl_stream){
-          Util::printError("SSL connection is broken.");
+          printf("Err: SSL connection is broken.\n");
           break;
         }
 
@@ -2549,7 +2553,7 @@ namespace xtbclient {
 
           // debug response
           if( m_debug_json_response ){
-            fprintf(stdout, "Response: %s\n", singleResponse.c_str());
+            printf("Resp: %s\n", singleResponse.c_str());
           }
 
           // test for api response error
@@ -2574,7 +2578,7 @@ namespace xtbclient {
           }
 
           if(!data){
-            Util::printError("data is empty!");
+            printf("Err: data is empty!\n");
             continue;
           }
 
@@ -2650,5 +2654,14 @@ namespace xtbclient {
   void Client::setDebugOutput(bool flag_requests, bool flag_responses) {
     setDebugJsonRequests(flag_requests);
     setDebugJsonResponse(flag_responses);
+  }
+
+  /*!
+   * Set verbose flag
+   *
+   * @param bool flag
+   */
+  void Client::setVerbose(bool flag) {
+    m_flag_verbose = flag;
   }
 };

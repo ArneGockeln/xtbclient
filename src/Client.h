@@ -60,6 +60,8 @@ namespace xtbclient {
     StreamListener *m_streamlistner;
     // mutex for ssl
     std::mutex m_ssl_mutex;
+    // flag to enable stdout messages
+    bool m_flag_verbose = false;
     // flag to enable json request output
     bool m_debug_json_requests = false;
     // flag to enable json response output
@@ -101,6 +103,7 @@ namespace xtbclient {
     void setDebugJsonRequests(bool flag);
     void setDebugJsonResponse(bool flag);
     void setDebugOutput(bool flag_requests, bool flag_responses);
+    void setVerbose(bool flag);
 
     /*!
      * Requests

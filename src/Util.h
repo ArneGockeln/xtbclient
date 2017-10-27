@@ -19,15 +19,6 @@ namespace xtbclient {
     static bool hasDocumentParseError(Document *t_document);
     static void handleJsonResponseError(std::string* jsonData);
     static bool hasAPIResponseError(const std::string &jsonResponse);
-    static void debug(std::string data){
-      fprintf(stdout, "Debug: %s\n", data.data());
-    }
-    static void printError(const std::string& message) {
-      fprintf(stderr, "Error: %s\n", message.c_str());
-    }
-    static void printMessage(const std::string& message){
-      fprintf(stdout, "xtbclient: %s\n", message.c_str());
-    }
     static void ltrim(std::string &s);
     static void rtrim(std::string &s);
     static void trim(std::string &s);
