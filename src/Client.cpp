@@ -1874,7 +1874,7 @@ namespace xtbclient {
     }
 
     // get session id
-    const char* sessionId = parseStreamSessionId( login_response );
+    auto sessionId = parseStreamSessionId( login_response );
 
     if(sessionId == nullptr){
       Util::printError("streamSessionId is nullptr.");
@@ -2444,19 +2444,18 @@ namespace xtbclient {
   const char* Client::parseStreamSessionId(std::string t_jsonString) {
     Document document = getDocumentFromJson(std::move(t_jsonString));
 
-    std::string sessionId;
-
     if(document.HasParseError()){
       return nullptr;
     }
 
     if(!document["status"].IsNull()){
       if(document["status"].GetBool()){
-        sessionId.assign(document["streamSessionId"].GetString());
+        const char* sessionId = document["streamSessionId"].GetString();
+        return sessionId;
       }
     }
 
-    return sessionId.c_str();
+    return nullptr;
   }
 
   /*!
