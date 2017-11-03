@@ -39,6 +39,7 @@ namespace xtbclient {
   public:
     // single request commands
     static std::string getLogin(const char*, const char*, const char*, const char*);
+    static std::string getLogout();
     static std::string getAllSymbols();
     static std::string getCalendar();
     static std::string getCurrentUserData();

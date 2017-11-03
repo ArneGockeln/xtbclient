@@ -107,6 +107,7 @@ namespace xtbclient {
     ~Client();
 
     bool login(const char *t_username, const char *t_password);
+    void logout();
     std::string sendRequest(std::string t_json);
     void sendRequestWithoutResponse(std::string t_json);
     std::string getResponse();

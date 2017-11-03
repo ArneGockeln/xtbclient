@@ -49,6 +49,15 @@ namespace xtbclient {
   }
 
   /*!
+   * Get logout request
+   *
+   * @return std::string
+   */
+  std::string RequestFactory::getLogout() {
+    return noArgumentCommand("logout");
+  }
+
+  /*!
    * Get all symbols request
    *
    * @return std::string

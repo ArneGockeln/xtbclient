@@ -1913,6 +1913,21 @@ namespace xtbclient {
   }
 
   /*!
+   * Send logout request
+   */
+  void Client::logout() {
+    if(m_ssl){
+      std::string logout_response = sendRequest( RequestFactory::getLogout() );
+
+      if( Util::hasAPIResponseError( logout_response ) ){
+        if(m_flag_verbose){
+          printf("Err: logout request: %s!\n", logout_response.c_str());
+        }
+      }
+    }
+  }
+
+  /*!
    * Set stream listener
    *
    * @param StreamListener t_streamListener
